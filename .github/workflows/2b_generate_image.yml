@@ -1,0 +1,101 @@
+name: 2B. Generate Image
+
+on:
+  workflow_dispatch: # GitHub UI se manual run karne ke liye button active rahega
+  workflow_run:
+    workflows: ["2A. Generate Content"] # Jab pehla workflow khatam hoga, yeh automatically trigger ho jayega
+    types:
+      - completed
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-image-automation:
+    runs-on: ubuntu-latest
+    # Yeh job tabhi chalega jab ya to manually trigger kiya ho, ya pehla workflow SAFAL (success) raha ho
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # Full git history fetch karega taaki dynamic tracking commits safe rahein
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Pull Latest Changes (Maintain Persistence)
+      run: |
+        git pull origin ${GITHUB_REF_NAME} --rebase
+
+    - name: Install and Start Cloudflare WARP Official Client
+      run: |
+        # 1. Cloudflare gpg key aur repo structure setup karna
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        
+        # 2. WARP client package installation
+        sudo apt-get update
+        sudo apt-get install -y cloudflare-warp
+        
+        # 3. WARP service background activation
+        sudo systemctl start warp-svc
+        sleep 3
+        
+        # 4. Terms of service acceptance & profile initialization
+        export WARP_ACCEPT_TOS=1
+        warp-cli --accept-tos registration new || warp-cli registration new
+        
+        # 5. Connect proxy tunnel mode locally on port 40000
+        warp-cli --accept-tos mode proxy || warp-cli mode proxy
+        warp-cli --accept-tos connect || warp-cli connect
+        
+        # 6. Handshake check log
+        sleep 5
+        warp-cli --accept-tos status || warp-cli status
+        echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install playwright playwright-stealth cryptography python-dotenv requests
+        playwright install chromium --with-deps
+
+    - name: Run Image Script
+      env:
+        DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        HTTP_PROXY: http://127.0.0.1:40000
+        HTTPS_PROXY: http://127.0.0.1:40000
+      run: |
+        python generate_image.py
+
+    - name: Upload Error Screenshot
+      if: failure() # Agar image script fail hota hai to debugging ke liye screenshot extract karega
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-screenshot
+        path: error_screenshot.png
+        if-no-files-found: ignore
+
+    - name: Commit and Push Generated Image & Updated JSON
+      run: |
+        # Aapke code ke mutabik actual targets ko track par lagana:
+        # 1. image/image.png (Jo aapke script ka default output directory asset hai)
+        # 2. priyanka_linkedin_topics.json (Jisme image_generated=True update hota hai)
+        git add image/image.png priyanka_linkedin_topics.json
+        
+        if git diff --staged --quiet; then
+          echo "[INFO] No image changes or state mutations detected. Skipping push."
+        else
+          echo "[OK] New asset or JSON update detected. Committing and pushing updates..."
+          git commit -m "Automated: Update generated feed asset and tracking state [skip ci]"
+          git push origin ${GITHUB_REF_NAME}
+        fi

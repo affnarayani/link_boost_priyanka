@@ -1,0 +1,121 @@
+name: 1A. Search Post to Comment
+
+on:
+  schedule:
+    - cron: '11 19 * * *'
+    - cron: '52 12 * * *'
+    - cron: '42 11 * * *'
+    - cron: '38 22 * * *'
+    - cron: '29 20 * * *'
+    - cron: '20 17 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  search-automation:
+    runs-on: ubuntu-latest
+    
+    # CRITICAL: Permission granted for committing/pushing changes back to repo
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # Full history fetch karega safe dynamic push ke liye
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Pull Latest Changes (Maintain Persistence)
+      run: |
+        git pull origin ${GITHUB_REF_NAME} --rebase
+
+    - name: Install and Start Cloudflare WARP Official Client
+      run: |
+        # 1. Cloudflare ka official gpg key aur repository add karein
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        
+        # 2. WARP client install karein
+        sudo apt-get update
+        sudo apt-get install -y cloudflare-warp
+        
+        # 3. WARP service ko background mein start karein
+        sudo systemctl start warp-svc
+        sleep 3
+        
+        # 4. Environment Variable ke sath Terms of Service accept aur register karein
+        export WARP_ACCEPT_TOS=1
+        
+        # Naye CLI mein global flag commands se PEHLE lagaya jata hai, is tarah:
+        warp-cli --accept-tos registration new || warp-cli registration new
+        
+        # 5. Client ko proxy mode par set karke connect karein
+        warp-cli --accept-tos mode proxy || warp-cli mode proxy
+        warp-cli --accept-tos connect || warp-cli connect
+        
+        # 6. Proxy status verification
+        sleep 5
+        warp-cli --accept-tos status || warp-cli status
+        echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install playwright playwright-stealth cryptography python-dotenv
+        playwright install chromium --with-deps
+
+    - name: Run Search Script
+      env:
+        DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        HTTP_PROXY: http://127.0.0.1:40000
+        HTTPS_PROXY: http://127.0.0.1:40000
+      run: |
+        python search_post_to_comment.py
+
+    # =======================================================
+    # ARCHIVE ERROR SCREENSHOTS IF SCRIPT FAILS
+    # =======================================================
+    - name: Upload Error Screenshots
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-screenshot
+        path: error_screenshot.png
+        if-no-files-found: ignore
+        retention-days: 3
+
+    # =======================================================
+    # COMMIT AND PUSH STATUS & PERSISTENT STATE
+    # =======================================================
+    - name: Commit and Push Status Changes
+      if: always() # Hamesha run hoga taaki dynamic state miss na ho
+      run: |
+        # Aapki script se generated exact files ko safety check ke saath stage karega
+        [ -f comment_status.json ] && git add comment_status.json
+        [ -f post_to_comment.json ] && git add post_to_comment.json
+        [ -f commented.json ] && git add commented.json
+        
+        if git diff --staged --quiet; then
+          echo "[INFO] No changes detected in pipeline state files. Skipping push."
+        else
+          echo "[OK] Changes detected. Committing dynamic state..."
+          git commit -m "Automated: Fresh target post state updated [skip ci]"
+          git push origin ${GITHUB_REF_NAME}
+        fi
+
+    - name: Cleanup Credentials
+      if: always()
+      run: |
+        rm -f credentials.txt client.ovpn openvpn.log || true

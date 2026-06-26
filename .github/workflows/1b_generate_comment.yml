@@ -1,0 +1,116 @@
+name: 1B. Generate Comment
+
+on: 
+  workflow_dispatch: 
+  workflow_run:
+    workflows: ["1A. Search Post to Comment"]
+    types:
+      - completed
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+    # FIXED: Ab yeh tabhi chalega jab ya toh manual run ho, YA pehla workflow STRICTLY 'success' ke saath complete hua ho
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Pull Latest Changes (Maintain Persistence)
+      run: |
+        git pull origin ${GITHUB_REF_NAME} --rebase
+
+    - name: Install and Start Cloudflare WARP Official Client
+      run: |
+        # 1. Cloudflare ka official gpg key aur repository add karein
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        
+        # 2. WARP client install karein
+        sudo apt-get update
+        sudo apt-get install -y cloudflare-warp
+        
+        # 3. WARP service ko background mein start karein
+        sudo systemctl start warp-svc
+        sleep 3
+        
+        # 4. Environment Variable ke sath Terms of Service accept aur register karein
+        export WARP_ACCEPT_TOS=1
+        
+        # Naye CLI mein global flag commands se PEHLE lagaya jata hai, is tarah:
+        warp-cli --accept-tos registration new || warp-cli registration new
+        
+        # 5. Client ko proxy mode par set karke connect karein
+        warp-cli --accept-tos mode proxy || warp-cli mode proxy
+        warp-cli --accept-tos connect || warp-cli connect
+        
+        # 6. Proxy status verification
+        sleep 5
+        warp-cli --accept-tos status || warp-cli status
+        echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install playwright playwright-stealth cryptography python-dotenv
+        playwright install chromium --with-deps
+
+    - name: Run Script
+      env:
+        DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        HTTP_PROXY: http://127.0.0.1:40000
+        HTTPS_PROXY: http://127.0.0.1:40000
+      run: |
+        python generate_comment.py
+
+    # =======================================================
+    # SCREENSHOT ARTIFACT UPLOAD IF SCRIPT FAILS
+    # =======================================================
+    - name: Upload Error Screenshot
+      if: failure() 
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-screenshot
+        path: error_screenshot.png
+        if-no-files-found: ignore
+        retention-days: 3
+
+    # =======================================================
+    # COMMIT AND PUSH GENERATED COMMENT & NEW PIPELINE STATE
+    # =======================================================
+    - name: Commit and Push Changes (If updated)
+      if: always() 
+      run: |
+        # Latest remote changes ko local rebase sync dena zaroori hai push se pehle
+        git pull origin ${GITHUB_REF_NAME} --rebase || true
+        
+        # Aapke code ke mutabik dynamic files ko safety check ke sath stage karenge
+        [ -f comment_status.json ] && git add comment_status.json
+        [ -f post_to_comment.json ] && git add post_to_comment.json
+        
+        if git diff --staged --quiet; then
+          echo "[INFO] No changes detected in pipeline json states. Skipping push."
+        else
+          echo "[OK] Changes detected. Committing and pushing updates..."
+          git commit -m "Automated: Update comment generation status and generated text [skip ci]"
+          git push origin ${GITHUB_REF_NAME}
+        fi

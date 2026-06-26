@@ -1,0 +1,96 @@
+name: 2A. Generate Content
+
+on:
+  schedule:
+    # Har roz Dopahar ke 1:35 PM UTC (yaani Indian Standard Time ke hisab se Shaam 7:05 PM) par chalega
+    - cron: '29 20 * * *'
+  workflow_dispatch: # GitHub UI se manual triggering ke liye
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # Full git history pull karega taaki dynamic push fail na ho
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Pull Latest Changes (Maintain Persistence)
+      run: |
+        git pull origin ${GITHUB_REF_NAME} --rebase
+
+    - name: Install and Start Cloudflare WARP Official Client
+      run: |
+        # 1. Cloudflare gpg key aur official repo add karna
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        
+        # 2. WARP client install karna
+        sudo apt-get update
+        sudo apt-get install -y cloudflare-warp
+        
+        # 3. Service background me active karna
+        sudo systemctl start warp-svc
+        sleep 3
+        
+        # 4. Terms of Service accept aur register karna
+        export WARP_ACCEPT_TOS=1
+        warp-cli --accept-tos registration new || warp-cli registration new
+        
+        # 5. Client ko Local Proxy Mode (Port 40000) par connect karna
+        warp-cli --accept-tos mode proxy || warp-cli mode proxy
+        warp-cli --accept-tos connect || warp-cli connect
+        
+        # 6. Proxy connection handshake wait aur status log
+        sleep 5
+        warp-cli --accept-tos status || warp-cli status
+        echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install playwright playwright-stealth cryptography python-dotenv requests
+        playwright install chromium --with-deps
+
+    - name: Run Script
+      env:
+        DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        HTTP_PROXY: http://127.0.0.1:40000
+        HTTPS_PROXY: http://127.0.0.1:40000
+      run: |
+        python generate_content.py
+
+    - name: Upload Error Screenshot
+      if: failure() # Script crash hone par hi screenshot extract karega
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-screenshot
+        path: error_screenshot.png
+        if-no-files-found: ignore
+
+    - name: Commit and Push Changes (If updated)
+      run: |
+        # Aapke project ke naye file structures ko stage karna
+        git add post.json priyanka_linkedin_topics.json
+        
+        if git diff --staged --quiet; then
+          echo "[INFO] No changes detected in post.json or topics list. Skipping push."
+        else
+          echo "[OK] State changes detected. Committing and pushing updates..."
+          git commit -m "Automated: Update content tracking state [skip ci]"
+          git push origin ${GITHUB_REF_NAME}
+        fi

@@ -1,0 +1,41 @@
+name: 0C. Clear Workflow History
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write  # Needed to delete workflow runs
+
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear workflow runs
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          CURRENT_RUN_ID=${{ github.run_id }}
+          echo "Current run ID: $CURRENT_RUN_ID"
+          
+          # Get all completed workflow runs
+          COMPLETED_RUNS=$(gh api repos/$REPO/actions/runs --paginate -q '.workflow_runs[] | select(.status == "completed") | {id: .id, name: .name}')
+          
+          if [ -n "$COMPLETED_RUNS" ]; then
+            echo "Found completed workflow runs. Deleting them..."
+            echo "$COMPLETED_RUNS" | jq -s -c '.[]' | while read -r run; do
+              RUN_ID=$(echo $run | jq -r '.id')
+              RUN_NAME=$(echo $run | jq -r '.name')
+              
+              # Skip the current run
+              if [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
+                echo "Skipping current run: $RUN_NAME (ID: $RUN_ID)"
+                continue
+              fi
+              
+              echo "Deleting workflow run: $RUN_NAME (ID: $RUN_ID)"
+              gh api repos/$REPO/actions/runs/$RUN_ID -X DELETE
+            done
+          else
+            echo "No completed workflow runs found."
+          fi

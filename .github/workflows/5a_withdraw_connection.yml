@@ -1,0 +1,92 @@
+name: 5A. Withdraw Connection
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '5 7 * * *'
+    - cron: '34 8 * * *'
+    - cron: '50 8 * * *'
+    - cron: '39 10 * * *'
+    - cron: '5 7 * * *'
+    - cron: '23 4 * * *'
+    - cron: '4 10 * * *'
+    - cron: '23 17 * * *'
+    - cron: '48 7 * * *'
+    - cron: '31 9 * * *'
+    - cron: '14 9 * * *'
+    - cron: '50 14 * * *'
+    - cron: '0 18 * * *'
+    - cron: '1 19 * * *'
+    - cron: '58 6 * * *'
+    - cron: '35 2 * * *'
+    - cron: '40 20 * * *'
+    - cron: '51 5 * * *'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright playwright-stealth cryptography python-dotenv
+          playwright install chromium --with-deps
+
+      - name: Install and Start Cloudflare WARP
+        run: |
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt-get update
+          sudo apt-get install -y cloudflare-warp
+          sudo systemctl start warp-svc
+          sleep 3
+          export WARP_ACCEPT_TOS=1
+          warp-cli --accept-tos registration new || warp-cli registration new
+          warp-cli --accept-tos mode proxy || warp-cli mode proxy
+          warp-cli --accept-tos connect || warp-cli connect
+          sleep 5
+
+      - name: Execute Automation Script
+        env:
+          DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+          HTTP_PROXY: http://127.0.0.1:40000
+          HTTPS_PROXY: http://127.0.0.1:40000
+        run: |
+          python withdraw_connection.py
+
+      - name: Upload Failure Screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-screenshot
+          path: error_screenshot.png
+          if-no-files-found: ignore
+
+      - name: Commit and Push updated connections state
+        if: success()
+        run: |
+          git add scraped_connections.json
+          if git diff --staged --quiet; then
+            echo "[INFO] No changes detected in pipeline state files. Skipping push."
+          else
+            echo "[OK] Changes detected. Committing dynamic state..."
+            git commit -m "Automated: Fresh target post state updated [skip ci]"
+            git push origin ${GITHUB_REF_NAME}
+          fi

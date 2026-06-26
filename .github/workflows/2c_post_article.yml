@@ -1,0 +1,111 @@
+name: 2C. Post Article
+
+on:
+  workflow_dispatch: # GitHub UI se zaroorat padne par manually run karne ke liye button rahega
+  workflow_run:
+    workflows: ["2B. Generate Image"] # Jab 'Generate Image' workflow successfully khatam hoga tabhi trigger hoga
+    types:
+      - completed
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
+jobs:
+  run-script:
+    runs-on: ubuntu-latest # Linux container fast aur efficient execution ke liye
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # 1. Repository ka code runner container mein checkout karna
+      - name: Checkout repository code
+        uses: actions/checkout@v5
+
+      # 2. Python Environment setup karna
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 3. Git Environment Identity configure karna
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 4. Pull Latest Changes (Race conditions aur dynamic commits balance karne ke liye)
+      - name: Pull Latest Changes (Maintain Persistence)
+        run: |
+          git pull origin ${GITHUB_REF_NAME} --rebase
+
+      # 5. Cloudflare WARP Proxy Client Client Configuration
+      - name: Install and Start Cloudflare WARP Official Client
+        run: |
+          # 1. Cloudflare official gpg key aur repo structure integration
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          
+          # 2. WARP CLI client package installation
+          sudo apt-get update
+          sudo apt-get install -y cloudflare-warp
+          
+          # 3. Client background daemon process trigger karna
+          sudo systemctl start warp-svc
+          sleep 3
+          
+          # 4. Tos variables apply aur device context registration
+          export WARP_ACCEPT_TOS=1
+          warp-cli --accept-tos registration new || warp-cli registration new
+          
+          # 5. Proxy tunnel active karna local port 40000 par
+          warp-cli --accept-tos mode proxy || warp-cli mode proxy
+          warp-cli --accept-tos connect || warp-cli connect
+          
+          # 6. Handshake status verify karna
+          sleep 5
+          warp-cli --accept-tos status || warp-cli status
+          echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+      # 6. Python core dependencies implementation
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright playwright-stealth python-dotenv cryptography
+
+      # 7. Playwright system drivers aur binaries setup
+      - name: Install Playwright Chromium and system dependencies
+        run: |
+          playwright install chromium --with-deps
+
+      # 8. Main Posting script execution with injected secrets & proxy routing
+      - name: Execute Automation Script
+        env:
+          DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+          HTTP_PROXY: http://127.0.0.1:40000
+          HTTPS_PROXY: http://127.0.0.1:40000
+        run: |
+          python post_article.py
+
+      # 9. Failure State Recovery (Agar script crash ho, to screenshot fetch karega)
+      - name: Upload Error Screenshot if script fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-screenshot
+          path: error_screenshot.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # 10. Success State Synchronization (State file persistence balance)
+      - name: Commit and Push updated topics state
+        if: success()
+        run: |
+          # Aapke project file name ke mutabik state track karna
+          git add priyanka_linkedin_topics.json
+          if git diff --staged --quiet; then
+            echo "[INFO] No changes detected in pipeline state files. Skipping push."
+          else
+            echo "[OK] Changes detected. Committing dynamic state..."
+            git commit -m "Automated: Fresh target post state updated [skip ci]"
+            git push origin ${GITHUB_REF_NAME}
+          fi

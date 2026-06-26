@@ -1,0 +1,154 @@
+name: 0B. Retry Workflows
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  actions: write  # Needed to delete workflow runs
+
+jobs:
+  retry-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for skipped and failed workflow runs
+        id: check-runs
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Checking for previous retry workflow runs..."
+          # Get all "Retry Workflows" runs (regardless of conclusion)
+          RETRY_RUNS=$(gh api repos/$REPO/actions/runs --jq '.workflow_runs[] | select(.name == "Retry Workflows") | {id: .id, name: .name, conclusion: .conclusion, status: .status}')
+          
+          # Get the current run ID to avoid trying to delete it
+          CURRENT_RUN_ID=${{ github.run_id }}
+          echo "Current run ID: $CURRENT_RUN_ID"
+          
+          if [ -n "$RETRY_RUNS" ]; then
+            echo "Found previous retry workflow runs. Deleting them..."
+            echo "$RETRY_RUNS" | jq -c '.' | while read -r run; do
+              RUN_ID=$(echo $run | jq -r '.id')
+              RUN_NAME=$(echo $run | jq -r '.name')
+              CONCLUSION=$(echo $run | jq -r '.conclusion')
+              STATUS=$(echo $run | jq -r '.status')
+              
+              # Skip the current run
+              if [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
+                echo "Skipping current run: $RUN_NAME (ID: $RUN_ID, Status: $STATUS, Conclusion: $CONCLUSION)"
+                continue
+              fi
+              
+              echo "Deleting retry workflow run: $RUN_NAME (ID: $RUN_ID, Status: $STATUS, Conclusion: $CONCLUSION)"
+              gh api repos/$REPO/actions/runs/$RUN_ID -X DELETE
+            done
+          else
+            echo "No previous retry workflow runs found."
+          fi
+          
+          echo "Checking for skipped workflow runs..."
+          # Get all workflow runs with conclusion 'skipped'
+          SKIPPED_RUNS=$(gh api repos/$REPO/actions/runs --jq '.workflow_runs[] | select(.conclusion == "skipped") | {id: .id, name: .name}')
+          
+          if [ -n "$SKIPPED_RUNS" ]; then
+            echo "Found skipped workflow runs. Deleting them..."
+            echo "$SKIPPED_RUNS" | jq -c '.' | while read -r run; do
+              RUN_ID=$(echo $run | jq -r '.id')
+              RUN_NAME=$(echo $run | jq -r '.name')
+              
+              # Skip the current run
+              if [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
+                echo "Skipping current run: $RUN_NAME (ID: $RUN_ID)"
+                continue
+              fi
+              
+              echo "Deleting skipped workflow run: $RUN_NAME (ID: $RUN_ID)"
+              gh api repos/$REPO/actions/runs/$RUN_ID -X DELETE
+            done
+          else
+            echo "No skipped workflow runs found."
+          fi
+          
+          echo "Checking for failed workflow runs..."
+          # Get all workflow runs with conclusion 'failure'
+          FAILED_RUNS=$(gh api repos/$REPO/actions/runs --jq '.workflow_runs[] | select(.conclusion == "failure") | {id: .id, name: .name, workflow_id: .workflow_id}')
+          
+          if [ -n "$FAILED_RUNS" ]; then
+            echo "Found failed workflow runs. Processing them..."
+            
+            # Create a file to store unique workflow IDs and names
+            UNIQUE_WORKFLOWS_FILE=$(mktemp)
+            
+            # First, delete all failed runs and collect unique workflow IDs
+            echo "$FAILED_RUNS" | jq -c '.' | while read -r run; do
+              RUN_ID=$(echo $run | jq -r '.id')
+              RUN_NAME=$(echo $run | jq -r '.name')
+              WORKFLOW_ID=$(echo $run | jq -r '.workflow_id')
+              
+              # Skip the current run if it's the "Retry Workflows" workflow
+              if [ "$RUN_NAME" == "Retry Workflows" ] && [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
+                echo "Skipping current retry workflow run (ID: $RUN_ID)"
+                continue
+              fi
+              
+              if [ "$RUN_NAME" != "Retry Workflows" ]; then
+                echo "Deleting failed workflow run: $RUN_NAME (ID: $RUN_ID)"
+                
+                # Store unique workflow info to file (if not retry workflow)
+                echo "$WORKFLOW_ID:$RUN_NAME" >> $UNIQUE_WORKFLOWS_FILE
+              else
+                echo "Deleting failed retry workflow run (ID: $RUN_ID)"
+              fi
+              
+              # Delete the failed run
+              gh api repos/$REPO/actions/runs/$RUN_ID -X DELETE
+            done
+            
+            # Sort and get unique workflow IDs
+            sort $UNIQUE_WORKFLOWS_FILE | uniq > ${UNIQUE_WORKFLOWS_FILE}.uniq
+            
+            # Now re-run each unique workflow once
+            if [ -s "${UNIQUE_WORKFLOWS_FILE}.uniq" ]; then
+              echo "Re-running unique workflows..."
+              
+              cat ${UNIQUE_WORKFLOWS_FILE}.uniq | while IFS=: read -r WORKFLOW_ID RUN_NAME; do
+                echo "Processing unique workflow: $RUN_NAME (ID: $WORKFLOW_ID)"
+                
+                # Re-run the workflow using the GitHub API
+                echo "Re-running workflow: $RUN_NAME (ID: $WORKFLOW_ID)"
+                
+                # Get the latest workflow run for this workflow to find its source branch
+                LATEST_RUN=$(gh api repos/$REPO/actions/workflows/$WORKFLOW_ID/runs --jq '.workflow_runs[0] | {head_branch: .head_branch}')
+                BRANCH=$(echo $LATEST_RUN | jq -r '.head_branch')
+                
+                # If branch is empty, default to the repository's default branch
+                if [ -z "$BRANCH" ] || [ "$BRANCH" = "null" ]; then
+                  BRANCH=$(gh api repos/$REPO --jq '.default_branch')
+                fi
+                
+                echo "Re-running workflow on branch: $BRANCH"
+                gh api repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches -f ref="$BRANCH"
+              done
+            else
+              echo "No unique workflows to re-run."
+            fi
+            
+            # Clean up temp files
+            rm -f $UNIQUE_WORKFLOWS_FILE ${UNIQUE_WORKFLOWS_FILE}.uniq
+            
+            echo "has_failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No failed workflow runs found."
+            echo "has_failed=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Mark this run for deletion
+        run: |
+          if [ "${{ steps.check-runs.outputs.has_failed }}" == "true" ]; then
+            echo "Failed workflows were found and retried. This run will be marked for cleanup in the next run."
+            echo "::notice::Failed workflows found and retried - this run will be cleaned up automatically"
+          else
+            echo "No failed workflows were found. This run will be marked for cleanup in the next run."
+            echo "::notice::No failed workflows found - this run will be cleaned up automatically"
+          fi

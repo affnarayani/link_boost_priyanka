@@ -1,0 +1,137 @@
+name: 1C. Like and Comment
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["1B. Generate Comment"] # Jab 'Generate Comment' workflow successfully khatam hoga tab yeh trigger hoga
+    types:
+      - completed
+
+permissions:
+  contents: write # Repository mein json state changes ko commit aur push karne ki permission deta hai
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+    # FIXED: Yeh tabhi chalega jab ya toh manual trigger ho, YA upstream workflow STRICTLY 'success' ke saath complete hua ho
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # 1. Fetch the latest code and state from the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 
+
+      # 2. Configure Python Environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. Configure Git Identity Early (To avoid rebase identity conflicts)
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 4. Pull Latest Changes before setting up infrastructure
+      - name: Pull Latest Changes
+        run: |
+          git pull origin ${GITHUB_REF_NAME:-main} --rebase
+
+      # 5. Cloudflare WARP Proxy Setup
+      - name: Install and Start Cloudflare WARP Official Client
+        run: |
+          # 1. Cloudflare ka official gpg key aur repository add karein
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          
+          # 2. WARP client install karein
+          sudo apt-get update
+          sudo apt-get install -y cloudflare-warp
+          
+          # 3. WARP service ko background mein start karein
+          sudo systemctl start warp-svc
+          sleep 3
+          
+          # 4. Environment Variable ke sath Terms of Service accept aur register karein
+          export WARP_ACCEPT_TOS=1
+          
+          # Naye CLI mein global flag commands se PEHLE lagaya jata hai, is tarah:
+          warp-cli --accept-tos registration new || warp-cli registration new
+          
+          # 5. Client ko proxy mode par set karke connect karein
+          warp-cli --accept-tos mode proxy || warp-cli mode proxy
+          warp-cli --accept-tos connect || warp-cli connect
+          
+          # 6. Proxy status verification
+          sleep 5
+          warp-cli --accept-tos status || warp-cli status
+          echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+
+      # 6. Install required packages from requirements.txt or raw fallbacks
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install playwright playwright-stealth cryptography python-dotenv; fi
+
+      # 7. Set up Playwright Chromium browser and its system binaries
+      - name: Install Playwright and System Dependencies
+        run: |
+          python -m playwright install --with-deps chromium
+
+      # 8. Run the core automation script (Clean Headless Execution)
+      - name: Run LinkedIn Like and Comment Script
+        env:
+          DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+          HTTP_PROXY: http://127.0.0.1:40000
+          HTTPS_PROXY: http://127.0.0.1:40000
+        run: |
+          python like_comment.py
+
+      # 9. Archive Error Screenshot if script crashes
+      - name: Upload Error Screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-screenshot
+          path: error_screenshot.png
+          if-no-files-found: ignore
+          retention-days: 3
+
+      # 10. Commit and Push Any Changes (Safe State Sync with Stash)
+      - name: Commit and Push Any Changes
+        if: always() # Hamesha chalega taaki final posted state history miss na ho
+        run: |
+          BRANCH_NAME="${GITHUB_REF_NAME:-main}"
+          
+          # Local changes temporarily hide karo
+          git stash
+          
+          # Remote changes securely pull karo
+          git pull origin "$BRANCH_NAME" --rebase
+          
+          # Local changes wapas apply karo
+          git stash pop || true
+          
+          # Aapke project ki exact files ko safety check ke sath stage karenge
+          [ -f comment_status.json ] && git add comment_status.json
+          [ -f commented.json ] && git add commented.json
+          
+          if git diff --staged --quiet; then
+            echo "No new state changes to commit."
+          else
+            git commit -m "chore: update linkedin automation history state [skip ci]"
+            git push origin "$BRANCH_NAME"
+          fi
+
+      # 11. Clean up raw credentials from runner before termination
+      - name: Cleanup VPN Credentials
+        if: always()
+        run: |
+          rm -f credentials.txt client.ovpn openvpn.log || true
