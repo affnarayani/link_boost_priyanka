@@ -135,10 +135,10 @@ def load_cookies(file_path: Path) -> List[Dict[str, Any]]:
 # NEW: VALIDATION & STATUS UPDATERS
 # ==================================
 def can_run_image_script() -> tuple:
-    print("[STEP] Checking status in umang_linkedin_topics.json...", flush=True)
-    topics_file = Path("umang_linkedin_topics.json")
+    print("[STEP] Checking status in priyanka_linkedin_topics.json...", flush=True)
+    topics_file = Path("priyanka_linkedin_topics.json")
     if not topics_file.exists():
-        print("[INFO] 'umang_linkedin_topics.json' nahi mili. Execution stopped.", flush=True)
+        print("[INFO] 'priyanka_linkedin_topics.json' nahi mili. Execution stopped.", flush=True)
         return False, None
     
     try:
@@ -175,8 +175,8 @@ def can_run_image_script() -> tuple:
 
 
 def update_image_status_in_json(topic_text: str):
-    print("[STEP] Updating image status in umang_linkedin_topics.json...", flush=True)
-    topics_file = Path("umang_linkedin_topics.json")
+    print("[STEP] Updating image status in priyanka_linkedin_topics.json...", flush=True)
+    topics_file = Path("priyanka_linkedin_topics.json")
     if not topics_file.exists():
         return
         
@@ -190,7 +190,7 @@ def update_image_status_in_json(topic_text: str):
             
     with topics_file.open("w", encoding="utf-8") as f:
         json.dump(topics, f, indent=4, ensure_ascii=False)
-    print("[OK] Image status successfully updated (image_generated=True) in umang_linkedin_topics.json", flush=True)
+    print("[OK] Image status successfully updated (image_generated=True) in priyanka_linkedin_topics.json", flush=True)
 
 
 # =========================

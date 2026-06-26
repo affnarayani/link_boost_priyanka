@@ -275,6 +275,7 @@ def run():
             f"Write like an experienced professional sharing one useful thought while scrolling LinkedIn.\n"
             f"Sound intelligent, observant, practical, conversational, and natural.\n"
             f"Write as a reaction, not as a mini-article.\n"
+            f"If someone got a certification, appraisal, promotion or got hired. Simply praise him/her and nothing more.\n"
             f"The comment should feel spontaneous rather than carefully crafted.\n\n"
 
             f"DO NOT SOUND LIKE:\n"
