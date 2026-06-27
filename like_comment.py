@@ -128,6 +128,15 @@ def run():
                 
             print("[SUCCESS] Exiting safely with code 0.", flush=True)
             return
+        
+        # Agar restriction nahi mili, toh normal text box flow chalega
+        print("[STEP] Comment box found. Proceeding to type...", flush=True)
+        comment_box.click()
+        custom_random_wait(2, 4)
+        
+        print("[STEP] Typing comment...", flush=True)
+        comment_box.press_sequentially(comment_text, delay=random.uniform(60, 140), timeout=0)
+        custom_random_wait(3, 6)
 
         # 5. KEYBOARD NAVIGATION
         print("[STEP] Executing Keyboard Flow...", flush=True)
