@@ -81,16 +81,53 @@ def run():
         page.goto(target_url, wait_until="load")
         custom_random_wait(6, 12)
 
-        # 4. LOCATE TEXTBOX
-        print("[STEP] Locating comment text editor input...", flush=True)
-        comment_box = page.locator('.comments-comment-box-comment__text-editor')
-        comment_box.wait_for(state="visible", timeout=60000)
-        comment_box.click()
-        custom_random_wait(2, 4)
+        # 4. LOCATE TEXTBOX OR RESTRICTION
+        print("[STEP] Checking for comment box or restriction...", flush=True)
         
-        print("[STEP] Typing comment...", flush=True)
-        comment_box.press_sequentially(comment_text, delay=random.uniform(60, 140), timeout=0)
-        custom_random_wait(3, 6)
+        comment_box = page.locator('.comments-comment-box-comment__text-editor')
+        restricted_text = page.get_by_text('Only group members can')
+
+        # Wait until either the comment box OR the restricted text becomes visible
+        try:
+            page.wait_for_function(
+                "() => document.querySelector('.comments-comment-box-comment__text-editor') || document.body.innerText.includes('Only group members can')",
+                timeout=30000
+            )
+        except Exception as e:
+            print("[ERROR] Neither comment box nor restriction text found within timeout.", flush=True)
+            raise e
+
+        # CONDITION CHECK: Agar group restriction text dikhta hai
+        if restricted_text.count() > 0 and restricted_text.is_visible():
+            print("[INFO] 'Only group members can...' restriction text found. Treating as SUCCESS.", flush=True)
+            
+            # History me URL add karke success mark karein
+            commented_urls = []
+            if COMMENTED_FILE.exists():
+                with COMMENTED_FILE.open("r", encoding="utf-8") as f:
+                    try: commented_urls = json.load(f)
+                    except: commented_urls = []
+            
+            if target_url not in commented_urls:
+                commented_urls.append(target_url)
+                with COMMENTED_FILE.open("w", encoding="utf-8") as f:
+                    json.dump(commented_urls, f, indent=4, ensure_ascii=False)
+
+            # Status true mark karein
+            status_data["comment_posted"] = True
+            with STATUS_FILE.open("w", encoding="utf-8") as f:
+                json.dump(status_data, f, indent=4, ensure_ascii=False)
+
+            print("[STEP] Finalizing restricted post flow...", flush=True)
+            custom_random_wait(5, 10)
+            
+            # Status file ko reset karein agli run ke liye
+            reset_status = {"post_to_comment_found": False, "comment_generated": False, "comment_posted": False}
+            with STATUS_FILE.open("w", encoding="utf-8") as f:
+                json.dump(reset_status, f, indent=4, ensure_ascii=False)
+                
+            print("[SUCCESS] Exiting safely with code 0.", flush=True)
+            return
 
         # 5. KEYBOARD NAVIGATION
         print("[STEP] Executing Keyboard Flow...", flush=True)
