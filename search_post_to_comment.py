@@ -62,7 +62,20 @@ def run():
         page.goto(linkedin_url, wait_until="load")
         
         custom_random_wait(6, 12)
-
+        
+        print("[STEP] Changing feed sort to Recent...", flush=True)
+        try:
+            # 'Sort by: Top' button par click karein
+            page.get_by_role("button", name=re.compile(r"Sort by: Top", re.IGNORECASE)).click()
+            custom_random_wait(6, 12)
+            
+            # Dropdown se 'Recent' option select karein
+            page.get_by_text("Recent", exact=True).click()
+            custom_random_wait(6, 12)
+        except Exception as sort_e:
+            # Agar button nahi milta ya already Recent par hai, toh error print karke aage badhein
+            print(f"[INFO] Sort option change nahi ho paya (ya already Recent hai): {sort_e}", flush=True)
+            
         # 3. Locate and click control menu
         print("[STEP] Locating control menu for the first post...", flush=True)
         control_menu_btn = page.get_by_role("button", name=re.compile(r"Open control menu for post by.*", re.IGNORECASE)).first
