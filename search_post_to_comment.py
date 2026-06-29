@@ -15,7 +15,7 @@ from login import login_and_get_context
 # =========================
 # CONFIG
 # =========================
-HEADLESS = False
+HEADLESS = True
 JSON_OUTPUT_FILE = "post_to_comment.json"
 STATUS_FILE = "comment_status.json"
 
