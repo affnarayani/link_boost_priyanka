@@ -86,6 +86,13 @@ def run():
                 commented_data = json.load(f)
                 if trimmed_url in commented_data:
                     print(f"[INFO] URL already commented. Exiting.", flush=True)
+                    if page:
+                        try:
+                            screenshot_path = "error_screenshot.png"
+                            page.screenshot(path=screenshot_path, full_page=True)
+                            print(f"[SCREENSHOT] Failure screenshot saved at: {screenshot_path}", flush=True)
+                        except Exception as s_e:
+                            print(f"[ERROR] Could not capture screenshot: {s_e}", flush=True)
                     sys.exit(1)
 
         # 7. Extract content
