@@ -292,6 +292,11 @@ def run():
         else:
             print("[WARNING] Profile button not detected directly, proceeding with caution...", flush=True)
 
+        if page.get_by_role('button', name='Create an image').is_visible():
+            page.get_by_role('button', name='Create an image').click()
+            print("[STEP] Create an image button clicked!...", flush=True)
+            custom_random_wait(6, 12)
+
         # Locate chat box and type prompt
         print("[STEP] Locating chat textbox...", flush=True)
         chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
@@ -337,7 +342,8 @@ def run():
         
         prompt_text = (f"{prompt}")
         print(f"[STEP] Filling prompt: '{prompt_text}'", flush=True)
-        chat_box.first.fill(prompt_text)
+        chat_box.first.type(prompt_text)
+        custom_random_wait(6, 12)
         
         page.keyboard.press("Enter")
         print("[OK] Prompt sent successfully", flush=True)
