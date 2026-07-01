@@ -1,4 +1,4 @@
-name: 0C. Clear Workflow History
+name: 0B. Clear Workflow History
 
 on:
   workflow_dispatch:

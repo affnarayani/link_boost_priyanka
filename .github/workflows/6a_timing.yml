@@ -1,4 +1,4 @@
-name: 0A. Update Workflow Timings
+name: 6A. Update Workflow Timings
 
 on:
   schedule:

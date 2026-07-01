@@ -1,4 +1,4 @@
-name: 0B. Retry Workflows
+name: 0A. Retry Workflows
 
 on:
   schedule:
@@ -19,8 +19,8 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           echo "Checking for previous retry workflow runs..."
-          # Get all "Retry Workflows" runs (regardless of conclusion)
-          RETRY_RUNS=$(gh api repos/$REPO/actions/runs --jq '.workflow_runs[] | select(.name == "Retry Workflows") | {id: .id, name: .name, conclusion: .conclusion, status: .status}')
+          # Get all "0A. Retry Workflows" runs (regardless of conclusion)
+          RETRY_RUNS=$(gh api repos/$REPO/actions/runs --jq '.workflow_runs[] | select(.name == "0A. Retry Workflows") | {id: .id, name: .name, conclusion: .conclusion, status: .status}')
           
           # Get the current run ID to avoid trying to delete it
           CURRENT_RUN_ID=${{ github.run_id }}
@@ -86,13 +86,13 @@ jobs:
               RUN_NAME=$(echo $run | jq -r '.name')
               WORKFLOW_ID=$(echo $run | jq -r '.workflow_id')
               
-              # Skip the current run if it's the "Retry Workflows" workflow
-              if [ "$RUN_NAME" == "Retry Workflows" ] && [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
+              # Skip the current run if it's the "0A. Retry Workflows" workflow
+              if [ "$RUN_NAME" == "0A. Retry Workflows" ] && [ "$RUN_ID" == "$CURRENT_RUN_ID" ]; then
                 echo "Skipping current retry workflow run (ID: $RUN_ID)"
                 continue
               fi
               
-              if [ "$RUN_NAME" != "Retry Workflows" ]; then
+              if [ "$RUN_NAME" != "0A. Retry Workflows" ]; then
                 echo "Deleting failed workflow run: $RUN_NAME (ID: $RUN_ID)"
                 
                 # Store unique workflow info to file (if not retry workflow)
