@@ -269,7 +269,7 @@ def run():
         print("[OK] Cookies added successfully", flush=True)
 
         # Optimized Image Prompt tailored for high-conversion LinkedIn feed visuals
-        prompt = (f"""
+        prompt = ("""
         Create image for a LinkedIn post with title: "{post_title}". Image must in the ratio 1:1. This will be a hero image to this LinkedIn post. Image must be engaging. The core idea of the image must revolve around these keywords: {post_keywords}
         """)
 
@@ -303,11 +303,6 @@ def run():
             print("[STEP] Create an image button clicked!...", flush=True)
             custom_random_wait(6, 12)
 
-        if page.get_by_role('button', name='Cancel').is_visible():
-            page.get_by_role('button', name='Cancel').click()
-            print("[STEP] Modal mila aur Cancel par click kar diya gaya.", flush=True)
-            custom_random_wait(6, 12)
-
         # Locate chat box and type prompt
         print("[STEP] Locating chat textbox...", flush=True)
         chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
@@ -326,32 +321,9 @@ def run():
         else:
             raise RuntimeError("❌ Textbox locator load nahi ho paya (All strategies failed).")
         
-        if page.get_by_role('button', name='Create an image').count() > 0:
-            page.get_by_role('button', name='Create an image').click()
-            print("[OK] Create image selected.", flush=True)
-            custom_random_wait(3, 6)
-        else:
-            print("[INFO] Create image button not found, skipping...", flush=True)
-
-        # Locate chat box again for the core prompt
-        print("[STEP] Locating chat textbox...", flush=True)
-        chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
-        
-        if chat_box.count() == 0:
-            print("[INFO] Fallback 1: Searching for 'Ask anything' paragraph inside textbox context...", flush=True)
-            chat_box = page.locator('div[contenteditable="true"]').filter(has=page.locator('p', has_text='Ask anything')).first
-            
-        if chat_box.count() == 0:
-            print("[INFO] Fallback 2: Searching via CSS Selector '#prompt-textarea'...", flush=True)
-            chat_box = page.locator('#prompt-textarea')
-
-        if chat_box.count() > 0:
-            chat_box.first.click()
-            print("[OK] Textbox located and clicked successfully.", flush=True)
-        else:
-            raise RuntimeError("❌ Textbox locator load nahi ho paya (All strategies failed).")
-        
-        prompt_text = (f"{prompt}")
+        formatted_base = prompt.format(post_title=post_title, post_keywords=post_keywords)
+        clean_base_prompt = " ".join(formatted_base.split())
+        prompt_text = clean_base_prompt
         print(f"[STEP] Filling prompt: '{prompt_text}'", flush=True)
         chat_box.first.type(prompt_text)
         custom_random_wait(6, 12)
