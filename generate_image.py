@@ -283,6 +283,12 @@ def run():
         print("[STEP] Performing initial random wait (30-60 seconds)...", flush=True)
         custom_random_wait(30, 60)
 
+        open_button = page.get_by_test_id("existing-workspace-row").get_by_role("button", name="Open")
+        if open_button.is_visible():
+            open_button.click()
+            print("[STEP] Open button par click kar diya gaya.", flush=True)
+            custom_random_wait(30, 60)
+
         # CHECK LOGIN SUCCESS VIA USER PROFILE BUTTON
         print("[STEP] Checking login success via profile button...", flush=True)
         profile_button = page.get_by_role('button', name=list(map(lambda x: x.compile(r'.*Free, open'), [__import__('re')]))[0])
@@ -295,11 +301,6 @@ def run():
         if page.get_by_role('button', name='Create an image').is_visible():
             page.get_by_role('button', name='Create an image').click()
             print("[STEP] Create an image button clicked!...", flush=True)
-            custom_random_wait(6, 12)
-
-        if page.get_by_text("Cancel", exact=False).is_visible():
-            page.get_by_text("Cancel", exact=False).click()
-            print("[STEP] Cancel button found and clicked!...", flush=True)
             custom_random_wait(6, 12)
 
         # Locate chat box and type prompt
