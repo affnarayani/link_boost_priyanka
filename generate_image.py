@@ -303,9 +303,8 @@ def run():
             print("[STEP] Create an image button clicked!...", flush=True)
             custom_random_wait(6, 12)
 
-        cancel_text = page.get_by_text("Cancel", exact=True)
-        if cancel_text.is_visible():
-            cancel_text.click(force=True)
+        if page.get_by_role('button', name='Cancel').is_visible():
+            page.get_by_role('button', name='Cancel').click()
             print("[STEP] Modal mila aur Cancel par click kar diya gaya.", flush=True)
             custom_random_wait(6, 12)
 
