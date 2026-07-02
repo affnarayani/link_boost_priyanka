@@ -303,6 +303,12 @@ def run():
             print("[STEP] Create an image button clicked!...", flush=True)
             custom_random_wait(6, 12)
 
+        cancel_element = page.get_by_role("link", name="Cancel", exact=True)
+        if cancel_element.is_visible():
+            cancel_element.click()
+            print("[STEP] Modal mila aur Cancel par click kar diya gaya.", flush=True)
+            custom_random_wait(6, 12)
+
         # Locate chat box and type prompt
         print("[STEP] Locating chat textbox...", flush=True)
         chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
