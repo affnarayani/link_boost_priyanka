@@ -1,14 +1,14 @@
 {
-    "title": "Summary suit procedure - faster recovery for liquidated claims",
-    "p1": "Most people assume recovering a debt means years in court.\nBut civil law already has a shortcut most professionals never hear about",
-    "p2": "Misconception: every unpaid invoice needs full trial. Reality: Summary suit under Order 37 CPC lets certain money claims move fast if based on written contract, invoice, negotiable instrument. surprise insight: defendant cannot automatically defend; must first seek permission (\"leave to defend\") and show valid reason. many don't know this gatekeeping",
-    "p3": "If claim is liquidated (fixed amount) like unpaid invoices, loans, or promissory notes, you can file summary suit. court may directly pass decree if defendant fails to justify defence. practical takeaway: businesses should structure transactions in writing; it dramatically increases recovery speed when disputes arise. Even courts treat these cases differently because evidence is already in writing. That is why recovery is often much faster compared to ordinary civil suits",
-    "conclusion": "Have you seen cases where invoices remained unpaid for years simply because parties didn't use summary suit route?",
+    "title": "Why a predicate offence is the foundation of every money laundering case",
+    "p1": "Money laundering cases don’t start with money. They start with a crime most people never hear about.\n\nBefore any bank trail is questioned, investigators first ask: where did the illegal money come from in the first place?",
+    "p2": "Most people think money laundering is just about hiding cash through banks or shell companies. But it cannot stand alone.\n\nThere must be a 'predicate offence' — the original crime that generated the money. No fraud, corruption, drug trade, or theft first, means no laundering case at all.",
+    "p3": "Think of it like this: laundering is the process of cleaning 'dirty money'. The predicate offence is what made it dirty in the first place. Investigators first prove the underlying crime, then trace how the proceeds moved and were disguised.\n\nPractical takeaway: when you hear about a money laundering case, the real story is often in the first crime, not the bank transactions.",
+    "conclusion": "Do you think financial investigations today focus enough on uncovering the predicate offence, or do they get stuck chasing the money trail?",
     "keywords": [
-        "civilprocedure",
-        "summarysuit",
-        "law",
-        "debtrecovery",
-        "legalawareness"
+        "moneylaundering",
+        "predicateoffence",
+        "financialcrime",
+        "compliance",
+        "aml"
     ]
 }
