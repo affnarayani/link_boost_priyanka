@@ -297,14 +297,15 @@ def run():
             print("[STEP] Create an image button clicked!...", flush=True)
             custom_random_wait(6, 12)
 
-        if not page.get_by_role("textbox", name="Chat with ChatGPT").is_visible():
-            page.keyboard.press("Escape")
+        if page.get_by_text("Cancel", exact=False).is_visible():
+            page.get_by_text("Cancel", exact=False).click()
+            print("[STEP] Cancel button found and clicked!...", flush=True)
             custom_random_wait(6, 12)
 
         # Locate chat box and type prompt
         print("[STEP] Locating chat textbox...", flush=True)
         chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
-        
+
         if chat_box.count() == 0:
             print("[INFO] Fallback 1: Searching for 'Describe or edit an image' paragraph inside textbox context...", flush=True)
             chat_box = page.locator('div[contenteditable="true"]').filter(has=page.locator('p', has_text='Describe or edit an image')).first
