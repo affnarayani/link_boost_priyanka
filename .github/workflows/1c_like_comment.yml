@@ -45,34 +45,32 @@ jobs:
           git pull origin ${GITHUB_REF_NAME:-main} --rebase
 
       # 5. Cloudflare WARP Proxy Setup
-      - name: Install and Start Cloudflare WARP Official Client
+      - name: Install and Start Cloudflare WARP (TUN Global Mode)
         run: |
-          # 1. Cloudflare ka official gpg key aur repository add karein
+          # 1. Repository aur GPG Key set karein
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
           
-          # 2. WARP client install karein
-          sudo apt-get update
-          sudo apt-get install -y cloudflare-warp
+          # 2. Install
+          sudo apt-get update && sudo apt-get install -y cloudflare-warp
           
-          # 3. WARP service ko background mein start karein
+          # 3. Start Service
           sudo systemctl start warp-svc
-          sleep 3
+          sleep 2
           
-          # 4. Environment Variable ke sath Terms of Service accept aur register karein
-          export WARP_ACCEPT_TOS=1
-          
-          # Naye CLI mein global flag commands se PEHLE lagaya jata hai, is tarah:
+          # 4. Register (New CLI Syntax compatible)
           warp-cli --accept-tos registration new || warp-cli registration new
           
-          # 5. Client ko proxy mode par set karke connect karein
-          warp-cli --accept-tos mode proxy || warp-cli mode proxy
-          warp-cli --accept-tos connect || warp-cli connect
+          # 5. STRICT FIX: Mode ko PROXY se badal kar TUN (Standard VPN) karein
+          # Yeh pure GitHub runner ka internet traffic WARP se routing kar dega
+          warp-cli --accept-tos mode warp || warp-cli mode warp
           
-          # 6. Proxy status verification
+          # 6. Connect
+          warp-cli --accept-tos connect || warp-cli connect
           sleep 5
-          warp-cli --accept-tos status || warp-cli status
-          echo "[OK] Cloudflare WARP is running on local proxy port 40000"
+          
+          # 7. Verify ki pure system ka IP change hua ya nahi
+          curl https://cloudflare.com/cdn-cgi/trace
 
       # 6. Install required packages from requirements.txt or raw fallbacks
       - name: Install Dependencies
@@ -89,8 +87,6 @@ jobs:
       - name: Run LinkedIn Like and Comment Script
         env:
           DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
-          HTTP_PROXY: http://127.0.0.1:40000
-          HTTPS_PROXY: http://127.0.0.1:40000
         run: |
           python like_comment.py
 
