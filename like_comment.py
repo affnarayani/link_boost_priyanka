@@ -78,7 +78,7 @@ def run():
     try:
         # Navigate to target
         print(f"[STEP] Navigating to target post URL: {target_url}", flush=True)
-        page.goto(target_url, wait_until="load")
+        page.goto(target_url, wait_until="domcontentloaded", timeout=60000)
         custom_random_wait(6, 12)
 
         # 4. LOCATE TEXTBOX OR RESTRICTION
