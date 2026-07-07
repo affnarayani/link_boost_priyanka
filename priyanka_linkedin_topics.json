@@ -60,7 +60,10 @@
         "posted": true
     },
     {
-        "topic": "NDPS cases involving juvenile accused - special considerations"
+        "topic": "NDPS cases involving juvenile accused - special considerations",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Framing of charges - an underrated turning point in a trial"
