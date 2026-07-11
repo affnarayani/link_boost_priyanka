@@ -90,7 +90,10 @@
         "posted": true
     },
     {
-        "topic": "Private complaint vs police FIR - when to choose which route"
+        "topic": "Private complaint vs police FIR - when to choose which route",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Deficiency in service claims against banks and insurers"
