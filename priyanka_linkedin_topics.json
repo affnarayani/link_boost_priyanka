@@ -96,7 +96,10 @@
         "posted": true
     },
     {
-        "topic": "Deficiency in service claims against banks and insurers"
+        "topic": "Deficiency in service claims against banks and insurers",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Second marriage during pendency of divorce - the legal consequences"
