@@ -114,7 +114,10 @@
         "posted": true
     },
     {
-        "topic": "Combining customs and court remedies against counterfeit goods"
+        "topic": "Combining customs and court remedies against counterfeit goods",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "AI-written contracts - enforceability questions lawyers should prepare for"
