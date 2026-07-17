@@ -126,7 +126,10 @@
         "posted": true
     },
     {
-        "topic": "Regularising contractual employees - the legal hurdles explained"
+        "topic": "Regularising contractual employees - the legal hurdles explained",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Disqualification of candidates following a criminal conviction"
