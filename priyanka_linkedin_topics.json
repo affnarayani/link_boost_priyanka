@@ -132,7 +132,10 @@
         "posted": true
     },
     {
-        "topic": "Disqualification of candidates following a criminal conviction"
+        "topic": "Disqualification of candidates following a criminal conviction",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Joint custody arrangements - are Indian courts finally adopting them"
