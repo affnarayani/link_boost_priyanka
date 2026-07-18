@@ -3,7 +3,7 @@ name: 2A. Generate Content
 on:
   schedule:
     # Har roz Dopahar ke 1:35 PM UTC (yaani Indian Standard Time ke hisab se Shaam 7:05 PM) par chalega
-    - cron: '45 11 * * *'
+    - cron: '20 6 * * *'
   workflow_dispatch: # GitHub UI se manual triggering ke liye
 
 env:
