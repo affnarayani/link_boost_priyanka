@@ -76,7 +76,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install playwright playwright-stealth cryptography python-dotenv; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install playwright playwright-stealth cryptography python-dotenv requests; fi
 
       # 7. Set up Playwright Chromium browser and its system binaries
       - name: Install Playwright and System Dependencies
@@ -87,6 +87,7 @@ jobs:
       - name: Run LinkedIn Like and Comment Script
         env:
           DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+          IMGBBB_API_KEY: ${{ secrets.IMGBBB_API_KEY }}
         run: |
           python like_comment.py
 

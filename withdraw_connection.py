@@ -10,27 +10,28 @@ from typing import List, Dict, Any
 
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+import requests
 # login.py se session import kiya gaya hai
 from login import login_and_get_context
 
-# =========================
+# ========================
 # CONFIG
-# =========================
+# ========================
 HEADLESS = True
 CONNECTIONS_FILE = "scraped_connections.json"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
-# =========================
+# ========================
 # DYNAMIC WAITS
-# =========================
+# ========================
 def custom_random_wait(min_sec=15, max_sec=30):
     seconds = random.uniform(min_sec, max_sec)
     print(f"[WAIT] Sleeping for {seconds:.2f} seconds...", flush=True)
     time.sleep(seconds)
 
-# =========================
+# ========================
 # JSON DATA HANDLING
-# =========================
+# ========================
 def load_connections(file_path: Path) -> List[Dict[str, Any]]:
     if not file_path.exists():
         print(f"[ERROR] {file_path.name} not found.", flush=True)
@@ -44,9 +45,9 @@ def save_connections(file_path: Path, data: List[Dict[str, Any]]):
         json.dump(data, f, indent=4, ensure_ascii=False)
     print(f"[INFO] Saved status updates to {file_path.name}", flush=True)
 
-# =========================
+# ========================
 # MAIN
-# =========================
+# ========================
 def run():
     print("[START] Script started", flush=True)
 
@@ -154,13 +155,32 @@ def run():
         raise
     except Exception as e:
         print("[ERROR] Script execution broke down due to trace:", e, flush=True)
-        if page:
+        if 'page' in locals() and page:
             try:
                 screenshot_path = "error_screenshot.png"
                 page.screenshot(path=screenshot_path, full_page=True)
-                print(f"[SCREENSHOT] Failure screenshot saved at: {screenshot_path}", flush=True)
-            except Exception as s_e:
-                print(f"[ERROR] Could not capture screenshot: {s_e}", flush=True)
+                print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
+                
+                imgbb_key = os.getenv("IMGBBB_API_KEY")
+                if imgbb_key:
+                    print("[OK] Uploading screenshot to ImgBB...", flush=True)
+                    url = f"https://api.imgbb.com/1/upload?expiration=86400&key={imgbb_key}"
+                    
+                    with open(screenshot_path, "rb") as file:
+                        response = requests.post(url, files={"image": file})
+                    
+                    if response.status_code == 200:
+                        res_data = response.json()
+                        direct_url = res_data["data"]["display_url"]
+                        print("\n" + "="*50, flush=True)
+                        print(f"👉 DIRECT SCREENSHOT LINK: {direct_url}", flush=True)
+                        print("="*50 + "\n", flush=True)
+                    else:
+                        print(f"[WARNING] ImgBB Upload Failed Status: {response.status_code}", flush=True)
+                else:
+                    print("[WARNING] IMGBBB_API_KEY environment variable not found.", flush=True)
+            except Exception as screenshot_err:
+                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
         sys.exit(1)
 
     finally:

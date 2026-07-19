@@ -69,6 +69,7 @@ jobs:
     - name: Run Script
       env:
         DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        IMGBBB_API_KEY: ${{ secrets.IMGBBB_API_KEY }}
       run: |
         python generate_content.py
 

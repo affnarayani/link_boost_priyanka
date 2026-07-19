@@ -4,6 +4,7 @@ import json
 import time
 import base64
 import random
+import requests
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -211,16 +212,16 @@ def update_topic_status_in_json(topic_text: str):
 def run():
     print("[START] Script started", flush=True)
 
-    # Har baar new run par post.json ke content ko clear kar dena
-    post_file = Path("post.json")
-    with post_file.open("w", encoding="utf-8") as f:
-        f.write("")
-    print("[OK] 'post.json' cleared/initialized at the start of the run.", flush=True)
-
     # Last post check condition validation
     if not can_run_script():
         print("[INFO] Conditions match nahi hui. Exiting script gracefully...", flush=True)
         sys.exit(0)
+
+    # Har baar new run par post.json ke content ko clear kar dena (sirf status pass hone par)
+    post_file = Path("post.json")
+    with post_file.open("w", encoding="utf-8") as f:
+        f.write("")
+    print("[OK] 'post.json' cleared/initialized at the start of the run.", flush=True)
 
     # Get next unprocessed topic
     try:
@@ -483,8 +484,27 @@ def run():
                 screenshot_path = "error_screenshot.png"
                 page.screenshot(path=screenshot_path, full_page=True)
                 print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
+                
+                imgbb_key = os.getenv("IMGBBB_API_KEY")
+                if imgbb_key:
+                    print("[OK] Uploading screenshot to ImgBB...", flush=True)
+                    url = f"https://api.imgbb.com/1/upload?expiration=86400&key={imgbb_key}"
+                    
+                    with open(screenshot_path, "rb") as file:
+                        response = requests.post(url, files={"image": file})
+                    
+                    if response.status_code == 200:
+                        res_data = response.json()
+                        direct_url = res_data["data"]["display_url"]
+                        print("\n" + "="*50, flush=True)
+                        print(f"👉 DIRECT SCREENSHOT LINK: {direct_url}", flush=True)
+                        print("="*50 + "\n", flush=True)
+                    else:
+                        print(f"[WARNING] ImgBB Upload Failed Status: {response.status_code}", flush=True)
+                else:
+                    print("[WARNING] IMGBBB_API_KEY environment variable not found.", flush=True)
             except Exception as screenshot_err:
-                print(f"[WARNING] Could not capture screenshot: {screenshot_err}", flush=True)
+                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
         if browser:
             try:
                 browser.close()
