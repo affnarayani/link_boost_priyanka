@@ -136,21 +136,15 @@ def run():
         custom_random_wait(2, 4)
         
         print("[STEP] Typing comment...", flush=True)
-        comment_box.press_sequentially(comment_text, delay=random.uniform(60, 140), timeout=0)
+        page.evaluate("text => navigator.clipboard.writeText(text)", comment_text)
+        page.keyboard.press("Control+V")
         custom_random_wait(3, 6)
 
-        # 5. KEYBOARD NAVIGATION
-        print("[STEP] Executing Keyboard Flow...", flush=True)
-        for i in range(1, 4):
-            page.keyboard.press("Tab")
-            custom_random_wait(3, 6)
-            
-        page.keyboard.press("Enter")
-        custom_random_wait(6, 12)
+        page.locator('button').filter(has_text='Comment').click()
 
         # 6. REACT LIKE
         print("[STEP] Locating 'React Like' button...", flush=True)
-        like_btn = page.get_by_role('button', name='React Like', exact=True)
+        like_btn = page.get_by_role('button', name='Reaction button state: no reaction', exact=True)
         if like_btn.count() > 0:
             like_btn.first.click()
             print("[SUCCESS] Post liked.", flush=True)
