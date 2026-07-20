@@ -85,13 +85,13 @@ def run():
         # 4. LOCATE TEXTBOX OR RESTRICTION
         print("[STEP] Checking for comment box or restriction...", flush=True)
         
-        comment_box = page.locator('.comments-comment-box-comment__text-editor')
-        restricted_text = page.get_by_text('Only group members can')
+        comment_box = page.get_by_test_id("ui-core-tiptap-text-editor-wrapper").get_by_role("paragraph").first
+        restricted_text = page.get_by_text("Only group members can")
 
-        # Wait until either the comment box OR the restricted text becomes visible
+        # Purani CSS class ki jagah `[data-testid="..."]` se wait karein
         try:
             page.wait_for_function(
-                "() => document.querySelector('.comments-comment-box-comment__text-editor') || document.body.innerText.includes('Only group members can')",
+                "() => document.querySelector('[data-testid=\"ui-core-tiptap-text-editor-wrapper\"]') || document.body.innerText.includes('Only group members can')",
                 timeout=30000
             )
         except Exception as e:
