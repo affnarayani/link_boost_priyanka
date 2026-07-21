@@ -85,6 +85,6 @@ jobs:
           git checkout -- .
           git clean -fd
           git commit -m "chore: update state [skip ci]"
-          git pull origin "$BRANCH" --rebase
-          git push origin "$BRANCH"
+          git pull origin main --rebase
+          git push origin main
         fi
