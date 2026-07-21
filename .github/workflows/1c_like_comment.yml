@@ -130,11 +130,6 @@ jobs:
             echo "No new state changes to commit."
           else
             git commit -m "chore: update linkedin automation history state [skip ci]"
+            git pull origin ${GITHUB_REF_NAME} --rebase
             git push origin "$BRANCH_NAME"
           fi
-
-      # 11. Clean up raw credentials from runner before termination
-      - name: Cleanup VPN Credentials
-        if: always()
-        run: |
-          rm -f credentials.txt client.ovpn openvpn.log || true
