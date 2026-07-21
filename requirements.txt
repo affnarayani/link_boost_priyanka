@@ -3,3 +3,6 @@ requests
 python-dotenv
 cryptography
 playwright-stealth
+opencv-python 
+numpy 
+pillow
