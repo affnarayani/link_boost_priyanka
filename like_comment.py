@@ -8,10 +8,6 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from dotenv import load_dotenv
 
-import cv2
-import numpy as np
-from PIL import Image
-
 from playwright.sync_api import sync_playwright
 # login.py se session import kiya gaya hai
 from login import login_and_get_context
@@ -19,15 +15,10 @@ from login import login_and_get_context
 # =========================
 # CONFIG
 # =========================
-HEADLESS = False  
+HEADLESS = True  
 STATUS_FILE = Path("comment_status.json")
 POST_DATA_FILE = Path("post_to_comment.json")
 COMMENTED_FILE = Path("commented.json")
-
-# Image Locators Directory
-LOCATOR_DIR = Path("locator_images")
-IMG_COMMENT_BOX = LOCATOR_DIR / "comment_box.png"
-IMG_LIKE_BUTTON = LOCATOR_DIR / "like_button.png"
 
 # =========================
 # DYNAMIC WAITS & SCROLL
@@ -56,112 +47,89 @@ def slow_scroll_to_bottom(page, step_pixels: int = 250, delay_sec: float = 0.4):
             break
 
 # =========================
-# DPI-AWARE & ROBUST CLICKER
+# DOM DOMINANT INTERACTION HELPERS
 # =========================
-def find_and_click_image_viewport_safe(page, template_path: Path, threshold: float = 0.75, max_timeout: int = 15) -> bool:
+def focus_and_click_comment_box(page, max_timeout: int = 15) -> bool:
     """
-    DPI devicePixelRatio handle karke correct CSS coordinates par click karta hai
-    aur DOM fallback ke sath field focus ensure karta hai.
+    DOM Selectors use karke Comment Box ko locate, scroll, aur focus karta hai.
     """
-    if not template_path.exists():
-        print(f"[IMAGE ERROR] File not found: {template_path}", flush=True)
-        return False
-
-    print(f"[IMAGE SEARCH] Searching locator image '{template_path.name}' with threshold {int(threshold * 100)}%...", flush=True)
-
-    template = cv2.imread(str(template_path), cv2.IMREAD_COLOR)
-    if template is None:
-        print(f"[IMAGE ERROR] Failed to load locator image: {template_path}", flush=True)
-        return False
-
-    t_height, t_width, _ = template.shape
+    print("[DOM SEARCH] Locating comment box via DOM selectors...", flush=True)
+    
+    selectors = [
+        "div.ql-editor[contenteditable='true']",
+        "div[contenteditable='true'][role='textbox']",
+        "div[role='textbox']",
+        "textarea.comments-comment-box__textarea",
+        ".ql-editor"
+    ]
+    
     start_time = time.time()
-
     while time.time() - start_time < max_timeout:
-        # Screenshot in memory
-        screenshot_bytes = page.screenshot(full_page=False)
-        nparr = np.frombuffer(screenshot_bytes, np.uint8)
-        screen_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-        s_height, s_width, _ = screen_img.shape
-        
-        # Get Browser DPI Ratio & Viewport dimensions
-        dpi_scale, v_width, v_height = page.evaluate("""
-            () => [window.devicePixelRatio || 1, window.innerWidth, window.innerHeight]
-        """)
-
-        # Convert Image pixels to CSS pixels
-        css_screen_w = s_width / dpi_scale
-        css_screen_h = s_height / dpi_scale
-
-        scale_x = v_width / css_screen_w
-        scale_y = v_height / css_screen_h
-
-        result = cv2.matchTemplate(screen_img, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-
-        if max_val >= threshold:
-            top_left_x, top_left_y = max_loc
-
-            img_center_x = (top_left_x + (t_width // 2)) / dpi_scale
-            img_center_y = (top_left_y + (t_height // 2)) / dpi_scale
-
-            click_x = int(img_center_x * scale_x)
-            click_y = int(img_center_y * scale_y)
-
-            print(f"[IMAGE FOUND] Match: {max_val * 100:.2f}% | CSS Point: ({click_x}, {click_y})", flush=True)
-            
-            # Step 1: Native Playwright Mouse Click
-            page.mouse.move(click_x, click_y)
-            time.sleep(0.2)
-            page.mouse.click(click_x, click_y, click_count=1)
-            time.sleep(0.3)
-
-            # Step 2: JS Focus with Guaranteed Exit
-            page.evaluate("""
-                (coords) => {
-                    const x = coords.x;
-                    const y = coords.y;
-                    const elems = document.elementsFromPoint(x, y);
+        for selector in selectors:
+            try:
+                elem = page.locator(selector).first
+                if elem.is_visible():
+                    elem.scroll_into_view_if_needed()
+                    custom_random_wait(0.5, 1.0)
+                    elem.click()
                     
-                    if (elems && elems.length > 0) {
-                        let target = elems[0];
-                        
-                        // Check for editable or interactive node
-                        for (let el of elems) {
-                            if (el.getAttribute('contenteditable') === 'true' || 
-                                el.role === 'textbox' ||
-                                el.tagName === 'TEXTAREA' || 
-                                el.tagName === 'BUTTON' ||
-                                el.tagName === 'INPUT') {
-                                target = el;
-                                break;
+                    # Ensure focus via JS for rich text editor
+                    page.evaluate("""
+                        (sel) => {
+                            const el = document.querySelector(sel);
+                            if (el) {
+                                el.focus();
+                                if (el.getAttribute('contenteditable') === 'true') {
+                                    const range = document.createRange();
+                                    const sel = window.getSelection();
+                                    range.selectNodeContents(el);
+                                    range.collapse(false);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                }
                             }
                         }
-                        
-                        target.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
-                        target.focus();
-                        target.click();
-
-                        // Selection range set for rich text editors
-                        if (target.getAttribute('contenteditable') === 'true' || target.role === 'textbox') {
-                            const range = document.createRange();
-                            const sel = window.getSelection();
-                            range.selectNodeContents(target);
-                            range.collapse(false);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
-                        }
-                    }
-                }
-            """, {"x": click_x, "y": click_y})
-
-            print(f"[SUCCESS] Image matched and clicked at CSS ({click_x}, {click_y})", flush=True)
-            return True  # Exit loop immediately!
-
+                    """, selector)
+                    
+                    print(f"[SUCCESS] Comment box located and focused via selector: '{selector}'", flush=True)
+                    return True
+            except Exception:
+                continue
         time.sleep(1)
+        
+    print("[ERROR] Comment box not found using DOM selectors.", flush=True)
+    return False
 
-    print(f"[IMAGE FAILED] Locator image '{template_path.name}' not found. Best match: {max_val * 100:.2f}%", flush=True)
+def click_like_button(page, max_timeout: int = 10) -> bool:
+    """
+    DOM Selectors use karke 'React Like' button ko locate aur click karta hai.
+    """
+    print("[DOM SEARCH] Locating 'React Like' button via DOM selectors...", flush=True)
+    
+    selectors = [
+        "button[aria-label*='React Like']",
+        "button[aria-label*='Like']",
+        "button.react-button__trigger",
+        "button.artdeco-button:has-text('Like')",
+        "button:has-text('Like')"
+    ]
+    
+    start_time = time.time()
+    while time.time() - start_time < max_timeout:
+        for selector in selectors:
+            try:
+                btn = page.locator(selector).first
+                if btn.is_visible():
+                    btn.scroll_into_view_if_needed()
+                    custom_random_wait(0.5, 1.0)
+                    btn.click()
+                    print(f"[SUCCESS] Post liked via selector: '{selector}'", flush=True)
+                    return True
+            except Exception:
+                continue
+        time.sleep(1)
+        
+    print("[WARNING] Could not locate or click Like button via DOM selectors.", flush=True)
     return False
 
 # =========================
@@ -250,23 +218,15 @@ def run():
             print("[SUCCESS] Exiting safely with code 0.", flush=True)
             return
 
-        # 5. SCROLL TO BOTTOM & LOCATE COMMENT BOX IMAGE
-        print("[STEP] Locating comment box via viewport-safe image matching...", flush=True)
+        # 5. SCROLL TO BOTTOM & LOCATE COMMENT BOX VIA DOM
+        print("[STEP] Locating comment box via DOM selectors...", flush=True)
         slow_scroll_to_bottom(page, step_pixels=250, delay_sec=0.4)
         custom_random_wait(2, 3)
 
-        box_clicked = find_and_click_image_viewport_safe(page, IMG_COMMENT_BOX, threshold=0.75, max_timeout=20)
-        
-        # DOM Selector Fallback if visual match couldn't focus
-        if not box_clicked:
-            print("[WARNING] Visual match failed. Using DOM Selector fallback for comment box...", flush=True)
-            comment_box = page.locator(".ql-editor, div[contenteditable='true'], div[role='textbox']").first
-            if comment_box.is_visible():
-                comment_box.click()
-                box_clicked = True
+        box_clicked = focus_and_click_comment_box(page, max_timeout=15)
 
         if not box_clicked:
-            raise Exception(f"Could not locate or focus '{IMG_COMMENT_BOX.name}' image or DOM element.")
+            raise Exception("Could not locate or focus comment box via DOM selectors.")
 
         custom_random_wait(1, 2)
         
@@ -301,14 +261,9 @@ def run():
         print("[KEYBOARD] Pressed ENTER to post comment.", flush=True)
         custom_random_wait(6, 12)
 
-        # 8. CLICK LIKE BUTTON
-        print("[STEP] Locating 'React Like' button...", flush=True)
-        like_clicked = find_and_click_image_viewport_safe(page, IMG_LIKE_BUTTON, threshold=0.75, max_timeout=10)
-        
-        if like_clicked:
-            print("[SUCCESS] Post liked via image match.", flush=True)
-        else:
-            print("[WARNING] Could not locate Like button.", flush=True)
+        # 8. CLICK LIKE BUTTON VIA DOM
+        print("[STEP] Locating 'React Like' button via DOM...", flush=True)
+        like_clicked = click_like_button(page, max_timeout=10)
 
         # 9. APPEND TO HISTORY
         commented_urls = []

@@ -83,19 +83,13 @@ jobs:
         run: |
           python -m playwright install --with-deps chromium
 
-      # 7.5 Install Virtual Display Server (Xvfb) for Non-Headless Visual Mode
-      - name: Install Display Dependencies (Xvfb)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb libxss1 libasound2t64 libgbm1
-
       # 8. Run the core automation script with Xvfb Virtual Screen (1920x1080)
       - name: Run LinkedIn Like and Comment Script
         env:
           DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
           IMGBBB_API_KEY: ${{ secrets.IMGBBB_API_KEY }}
         run: |
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python like_comment.py
+          python like_comment.py
 
       # 9. Archive Error Screenshot if script crashes
       - name: Upload Error Screenshot
