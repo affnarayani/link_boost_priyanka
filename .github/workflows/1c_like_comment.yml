@@ -110,26 +110,13 @@ jobs:
       # 10. Commit and Push Any Changes (Safe State Sync with Stash)
       - name: Commit and Push Any Changes
         if: always() # Hamesha chalega taaki final posted state history miss na ho
-        run: |
-          BRANCH_NAME="${GITHUB_REF_NAME:-main}"
-          
-          # Local changes temporarily hide karo
-          git stash
-          
-          # Remote changes securely pull karo
-          git pull origin "$BRANCH_NAME" --rebase
-          
-          # Local changes wapas apply karo
-          git stash pop || true
-          
-          # Aapke project ki exact files ko safety check ke sath stage karenge
+        run: |     
           [ -f comment_status.json ] && git add comment_status.json
           [ -f commented.json ] && git add commented.json
-          
-          if git diff --staged --quiet; then
-            echo "No new state changes to commit."
-          else
-            git commit -m "chore: update linkedin automation history state [skip ci]"
-            git pull origin ${GITHUB_REF_NAME} --rebase
-            git push origin "$BRANCH_NAME"
+          if ! git diff --staged --quiet; then
+            git checkout -- .
+            git clean -fd
+            git commit -m "chore: update state [skip ci]"
+            git pull origin "$BRANCH" --rebase
+            git push origin "$BRANCH"
           fi

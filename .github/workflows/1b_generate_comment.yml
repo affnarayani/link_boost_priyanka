@@ -97,18 +97,12 @@ jobs:
     - name: Commit and Push Changes (If updated)
       if: always() 
       run: |
-        # Latest remote changes ko local rebase sync dena zaroori hai push se pehle
-        git pull origin ${GITHUB_REF_NAME} --rebase || true
-        
-        # Aapke code ke mutabik dynamic files ko safety check ke sath stage karenge
         [ -f comment_status.json ] && git add comment_status.json
         [ -f post_to_comment.json ] && git add post_to_comment.json
-        
-        if git diff --staged --quiet; then
-          echo "[INFO] No changes detected in pipeline json states. Skipping push."
-        else
-          echo "[OK] Changes detected. Committing and pushing updates..."
-          git commit -m "Automated: Update comment generation status and generated text [skip ci]"
-          git pull origin ${GITHUB_REF_NAME} --rebase
-          git push origin ${GITHUB_REF_NAME}
+        if ! git diff --staged --quiet; then
+          git checkout -- .
+          git clean -fd
+          git commit -m "chore: update state [skip ci]"
+          git pull origin "$BRANCH" --rebase
+          git push origin "$BRANCH"
         fi

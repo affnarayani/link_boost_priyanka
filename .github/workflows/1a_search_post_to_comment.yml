@@ -99,16 +99,13 @@ jobs:
     - name: Commit and Push Status Changes
       if: always() # Hamesha run hoga taaki dynamic state miss na ho
       run: |
-        # Aapki script se generated exact files ko safety check ke saath stage karega
         [ -f comment_status.json ] && git add comment_status.json
         [ -f post_to_comment.json ] && git add post_to_comment.json
         [ -f commented.json ] && git add commented.json
-        
-        if git diff --staged --quiet; then
-          echo "[INFO] No changes detected in pipeline state files. Skipping push."
-        else
-          echo "[OK] Changes detected. Committing dynamic state..."
-          git commit -m "Automated: Fresh target post state updated [skip ci]"
-          git pull origin ${GITHUB_REF_NAME} --rebase
-          git push origin ${GITHUB_REF_NAME}
+        if ! git diff --staged --quiet; then
+          git checkout -- .
+          git clean -fd
+          git commit -m "chore: update state [skip ci]"
+          git pull origin "$BRANCH" --rebase
+          git push origin "$BRANCH"
         fi

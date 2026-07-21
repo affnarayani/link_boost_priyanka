@@ -86,16 +86,11 @@ jobs:
 
     - name: Commit and Push Generated Image & Updated JSON
       run: |
-        # Aapke code ke mutabik actual targets ko track par lagana:
-        # 1. image/image.png (Jo aapke script ka default output directory asset hai)
-        # 2. priyanka_linkedin_topics.json (Jisme image_generated=True update hota hai)
         git add image/image.png priyanka_linkedin_topics.json
-        
-        if git diff --staged --quiet; then
-          echo "[INFO] No image changes or state mutations detected. Skipping push."
-        else
-          echo "[OK] New asset or JSON update detected. Committing and pushing updates..."
-          git commit -m "Automated: Update generated feed asset and tracking state [skip ci]"
-          git pull origin ${GITHUB_REF_NAME} --rebase
-          git push origin ${GITHUB_REF_NAME}
+        if ! git diff --staged --quiet; then
+          git checkout -- .
+          git clean -fd
+          git commit -m "chore: update state [skip ci]"
+          git pull origin "$BRANCH" --rebase
+          git push origin "$BRANCH"
         fi

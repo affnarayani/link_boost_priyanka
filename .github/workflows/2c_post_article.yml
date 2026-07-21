@@ -99,13 +99,11 @@ jobs:
       - name: Commit and Push updated topics state
         if: success()
         run: |
-          # Aapke project file name ke mutabik state track karna
           git add priyanka_linkedin_topics.json
-          if git diff --staged --quiet; then
-            echo "[INFO] No changes detected in pipeline state files. Skipping push."
-          else
-            echo "[OK] Changes detected. Committing dynamic state..."
-            git commit -m "Automated: Fresh target post state updated [skip ci]"
-            git pull origin ${GITHUB_REF_NAME} --rebase
-            git push origin ${GITHUB_REF_NAME}
+          if ! git diff --staged --quiet; then
+            git checkout -- .
+            git clean -fd
+            git commit -m "chore: update state [skip ci]"
+            git pull origin "$BRANCH" --rebase
+            git push origin "$BRANCH"
           fi

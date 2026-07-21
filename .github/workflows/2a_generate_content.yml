@@ -83,14 +83,11 @@ jobs:
 
     - name: Commit and Push Changes (If updated)
       run: |
-        # Aapke project ke naye file structures ko stage karna
         git add post.json priyanka_linkedin_topics.json
-        
-        if git diff --staged --quiet; then
-          echo "[INFO] No changes detected in post.json or topics list. Skipping push."
-        else
-          echo "[OK] State changes detected. Committing and pushing updates..."
-          git commit -m "Automated: Update content tracking state [skip ci]"
-          git pull origin ${GITHUB_REF_NAME} --rebase
-          git push origin ${GITHUB_REF_NAME}
+        if ! git diff --staged --quiet; then
+          git checkout -- .
+          git clean -fd
+          git commit -m "chore: update state [skip ci]"
+          git pull origin "$BRANCH" --rebase
+          git push origin "$BRANCH"
         fi
