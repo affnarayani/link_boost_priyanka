@@ -131,7 +131,9 @@ def run():
         # 7. Extract content
         page.goto(trimmed_url, wait_until="load")
         custom_random_wait(6, 12)
-        post_content = page.get_by_test_id("expandable-text-box").first.inner_text().strip()
+        post_locator = page.locator('div[class*="update-components-update-v2__commentary"]').first
+        post_locator.wait_for(state="visible", timeout=15000)
+        post_content = post_locator.inner_text().strip()
         
         if len(post_content) < 150:
             print("[FAIL] Content too short.", flush=True)
