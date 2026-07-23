@@ -1,14 +1,14 @@
 {
-    "title": "NDPS and money laundering overlap - when both laws apply together",
-    "p1": "A drug case does not always end with the seizure of illegal substances.\n\nSometimes, the bigger legal question begins after that: what happened to the money earned from it?",
-    "p2": "Many people assume NDPS law and money laundering law deal with the same issue. They do not.\n\nNDPS focuses on offences involving narcotic drugs and psychotropic substances. Money laundering focuses on the process of hiding or using the proceeds generated from a crime.\n\nThe surprising part: a person can face both laws for the same chain of events, because one law addresses the illegal activity while the other targets the money connected to it.",
-    "p3": "For example, if someone earns money through a prohibited drug trade and later tries to disguise that income as legitimate earnings, the NDPS offence and money laundering allegations may arise together.\n\nThe key takeaway is simple: the illegal act and the financial trail are two separate legal angles. One looks at the crime, the other follows the money.\n\nKnowing this difference helps explain why financial investigations often continue even after the original offence is identified.",
-    "conclusion": "Do you think tracking the money trail should be as important as proving the original offence in cases involving illegal activities?",
+    "title": "Algorithmic bias in lending - the consumer protection angle",
+    "p1": "A loan rejection may not always come from a human decision-maker.\n\nIncreasingly, algorithms decide who gets credit, how much, and on what terms. But what happens when the data behind those decisions carries hidden bias?",
+    "p2": "Many people assume that computer-based decisions are automatically fair because machines do not have personal opinions. The surprising reality is that algorithms can repeat or amplify patterns of past discrimination if they learn from biased data.",
+    "p3": "Algorithmic bias in lending means a system may unintentionally disadvantage certain consumers based on factors connected to identity, location, income patterns, or historical inequalities.\n\nConsumer protection is not about stopping technology. It is about making sure automated decisions are transparent, explainable, and open to review when they affect someone's financial future.\n\nA fair lending system should not only ask, 'Can we predict risk?' It should also ask, 'Are we treating people fairly?'",
+    "conclusion": "Should lenders be required to explain every automated credit decision to consumers?",
     "keywords": [
-        "NDPS",
-        "MoneyLaundering",
-        "CriminalLaw",
-        "FinancialCrime",
-        "LegalAwareness"
+        "AlgorithmicBias",
+        "ConsumerProtection",
+        "FinTech",
+        "FairLending",
+        "FinancialInclusion"
     ]
 }
