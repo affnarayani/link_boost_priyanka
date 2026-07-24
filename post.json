@@ -1,14 +1,14 @@
 {
-    "title": "Algorithmic bias in lending - the consumer protection angle",
-    "p1": "A loan rejection may not always come from a human decision-maker.\n\nIncreasingly, algorithms decide who gets credit, how much, and on what terms. But what happens when the data behind those decisions carries hidden bias?",
-    "p2": "Many people assume that computer-based decisions are automatically fair because machines do not have personal opinions. The surprising reality is that algorithms can repeat or amplify patterns of past discrimination if they learn from biased data.",
-    "p3": "Algorithmic bias in lending means a system may unintentionally disadvantage certain consumers based on factors connected to identity, location, income patterns, or historical inequalities.\n\nConsumer protection is not about stopping technology. It is about making sure automated decisions are transparent, explainable, and open to review when they affect someone's financial future.\n\nA fair lending system should not only ask, 'Can we predict risk?' It should also ask, 'Are we treating people fairly?'",
-    "conclusion": "Should lenders be required to explain every automated credit decision to consumers?",
+    "title": "Where insider trading prosecution and criminal court jurisdiction overlap",
+    "p1": "Insider trading is often seen as a market violation. But what happens when a trading decision becomes a criminal case?\n\nThe answer lies in the overlap between financial regulation and criminal court jurisdiction.",
+    "p2": "Many assume that insider trading is handled only by market regulators. The surprising part: depending on the facts, the same conduct can lead to criminal prosecution because it may involve fraud, deception, or misuse of confidential information.",
+    "p3": "In simple terms, regulators may investigate and impose penalties for violating securities laws, while criminal courts step in when the alleged actions cross into offences recognized under criminal law. The key question is not just \"Was there illegal trading?\" but also \"Does the conduct amount to a crime requiring criminal accountability?\"\n\nThis distinction matters for investors, executives, and companies because financial decisions can carry consequences beyond fines and compliance issues.",
+    "conclusion": "Should insider trading cases remain primarily under financial regulators, or should criminal courts have a stronger role in protecting market integrity?",
     "keywords": [
-        "AlgorithmicBias",
-        "ConsumerProtection",
-        "FinTech",
-        "FairLending",
-        "FinancialInclusion"
+        "InsiderTrading",
+        "SecuritiesLaw",
+        "CorporateGovernance",
+        "FinancialCrime",
+        "LegalAwareness"
     ]
 }
