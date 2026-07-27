@@ -186,7 +186,10 @@
         "posted": true
     },
     {
-        "topic": "Compliance failures in acid sale regulation despite strict rules"
+        "topic": "Compliance failures in acid sale regulation despite strict rules",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Live-streaming of court proceedings - the pros and cons for litigants"
