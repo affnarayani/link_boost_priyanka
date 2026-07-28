@@ -192,7 +192,10 @@
         "posted": true
     },
     {
-        "topic": "Live-streaming of court proceedings - the pros and cons for litigants"
+        "topic": "Live-streaming of court proceedings - the pros and cons for litigants",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Relocation disputes when one parent wants to move abroad with the child"
