@@ -203,6 +203,38 @@ def run():
         page.goto(target_url, wait_until="domcontentloaded", timeout=60000)
         custom_random_wait(4, 8)
 
+        # CHECK FOR "This post cannot be displayed" LINK
+        print("[STEP] Checking if post cannot be displayed...", flush=True)
+        cannot_displayed_locator = page.get_by_role('link', name='This post cannot be displayed')
+        if cannot_displayed_locator.count() > 0 and cannot_displayed_locator.first.is_visible():
+            print("[INFO] 'This post cannot be displayed' found. Skipping to history & status update...", flush=True)
+            
+            # 9. APPEND TO HISTORY
+            commented_urls = []
+            if COMMENTED_FILE.exists():
+                with COMMENTED_FILE.open("r", encoding="utf-8") as f:
+                    try: commented_urls = json.load(f)
+                    except: commented_urls = []
+            
+            if target_url not in commented_urls:
+                commented_urls.append(target_url)
+                with COMMENTED_FILE.open("w", encoding="utf-8") as f:
+                    json.dump(commented_urls, f, indent=4, ensure_ascii=False)
+
+            # 10. UPDATE STATUS
+            status_data["comment_posted"] = True
+            with STATUS_FILE.open("w", encoding="utf-8") as f:
+                json.dump(status_data, f, indent=4, ensure_ascii=False)
+
+            print("[STEP] Finalizing...", flush=True)
+            custom_random_wait(15, 30)
+            
+            reset_status = {"post_to_comment_found": False, "comment_generated": False, "comment_posted": False}
+            with STATUS_FILE.open("w", encoding="utf-8") as f:
+                json.dump(reset_status, f, indent=4, ensure_ascii=False)
+            
+            return
+
         # 4. CHECK GROUP RESTRICTION
         print("[STEP] Checking for restriction text...", flush=True)
         restricted_text = page.get_by_text("Only group members can")
