@@ -40,7 +40,7 @@ IMAGE_DIR = Path("image")
 IMAGE_DIR.mkdir(exist_ok=True)
 
 PBKDF2_ITERATIONS = 200_000
-MAX_RETRIES = 5  
+MAX_RETRIES = 10
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
@@ -417,6 +417,23 @@ def run():
             # Retrying comment removed as per logic change...
 
         # --- END: MODIFIED LOGIC FOR PREFERENCE HANDLING ---
+            if not found_share and attempt == 5:
+                print("[INFO] 5 retries complete ho gaye. Image nahi mili, chat_box mein 'Continue Generating Prompt' bhej rahe hain...", flush=True)
+                try:
+                    chat_box = page.get_by_role('textbox', name='Chat with ChatGPT')
+                    if chat_box.count() == 0:
+                        chat_box = page.locator('div[contenteditable="true"]').filter(has=page.locator('p', has_text='Describe or edit an image')).first
+                    if chat_box.count() == 0:
+                        chat_box = page.locator('#prompt-textarea')
+
+                    if chat_box.count() > 0:
+                        chat_box.first.click()
+                        chat_box.first.type("Please continue generating the image")
+                        custom_random_wait(3, 5)
+                        page.keyboard.press("Enter")
+                        print("[OK] 'Continue Generating Prompt' bhej diya gaya hai. Agle 5 retries ka wait kar rahe hain...", flush=True)
+                except Exception as q_err:
+                    print(f"[WARNING] 'Continue Generating Prompt' bhejte waqt error aaya: {q_err}", flush=True)
 
         if not found_share or not share_button:
             print("❌ Error: 'Share this image' button not found after 5 retries. Exiting program.", flush=True)
