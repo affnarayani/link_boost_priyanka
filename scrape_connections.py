@@ -17,7 +17,7 @@ from login import login_and_get_context
 # CONFIG
 # =========================
 HEADLESS = True
-TARGET_URL = "https://www.linkedin.com/search/results/people/?keywords=advocate&origin=FACETED_SEARCH&geoUrn=%5B%22102913253%22%5D"
+TARGET_URL = "https://www.linkedin.com/search/results/people/?keywords=advocate&origin=FACETED_SEARCH&geoUrn=%5B%22113536609%22%5D"
 OUTPUT_FILE = "scraped_connections.json"
 
 # =========================

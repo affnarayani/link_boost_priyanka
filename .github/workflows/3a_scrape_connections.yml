@@ -1,7 +1,7 @@
 name: 3A. Scrape Connections
 
 on:
-  workflow_dispatch: # Sirf manual execution ke liye
+  workflow_dispatch:
   
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -80,11 +80,24 @@ jobs:
     - name: Commit and Push Scraped Data
       if: success()
       run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
         git add scraped_connections.json
-        if ! git diff --staged --quiet; then
-          git checkout -- .
-          git clean -fd
-          git commit -m "chore: update state [skip ci]"
-          git pull origin main --rebase
-          git push origin main
+        
+        # Check agar file change hui hai ya nahi
+        if git diff --staged --quiet; then
+          echo "[INFO] No changes detected in pipeline state files. Skipping push."
+        else
+          echo "[OK] Changes detected. Committing dynamic state..."
+          git commit -m "Automated: Fresh target post state updated [skip ci]"
+          
+          # Agar koi bhi extra unstaged/untracked changes hain toh unhe stash kar lo
+          git stash --include-untracked || true
+          
+          git pull origin ${GITHUB_REF_NAME} --rebase
+          
+          # Stash wapas apply kar do (agar zaroorat ho)
+          git stash pop || true
+          
+          git push origin ${GITHUB_REF_NAME}
         fi
