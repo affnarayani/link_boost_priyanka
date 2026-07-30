@@ -43,7 +43,10 @@
     },
     {
         "name": "Ajeet Pal",
-        "profile_link": "https://www.linkedin.com/in/ajeet-pal-79463491/"
+        "profile_link": "https://www.linkedin.com/in/ajeet-pal-79463491/",
+        "sent": true,
+        "timestamp": "2026-07-30 18:19:54",
+        "withdrawn": false
     },
     {
         "name": "Kushagra Vats",
