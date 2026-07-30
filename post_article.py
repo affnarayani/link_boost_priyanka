@@ -125,7 +125,7 @@ def run():
         step_wait()
 
         print("[STEP] Clicking 'Start a post'...", flush=True)
-        page.get_by_role('link', name='Start a post').click()
+        page.get_by_role('button', name='Start a post').click()
         step_wait()
 
         full_post_text = clean_and_format_post(post_data)
