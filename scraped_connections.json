@@ -169,7 +169,10 @@
     },
     {
         "name": "Jai Prakash Singh",
-        "profile_link": "https://www.linkedin.com/in/jai-prakash-singh-b15759248/"
+        "profile_link": "https://www.linkedin.com/in/jai-prakash-singh-b15759248/",
+        "sent": true,
+        "timestamp": "2026-07-31 20:49:09",
+        "withdrawn": false
     },
     {
         "name": "Rishi Raj Raman",
