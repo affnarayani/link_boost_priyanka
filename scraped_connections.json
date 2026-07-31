@@ -190,7 +190,10 @@
     },
     {
         "name": "Saumya shankar",
-        "profile_link": "https://www.linkedin.com/in/saumya-shankar-a68a19409/"
+        "profile_link": "https://www.linkedin.com/in/saumya-shankar-a68a19409/",
+        "sent": true,
+        "timestamp": "2026-07-31 22:43:37",
+        "withdrawn": false
     },
     {
         "name": "Priti Kumari",
