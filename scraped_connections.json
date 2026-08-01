@@ -281,7 +281,10 @@
     },
     {
         "name": "Usha K",
-        "profile_link": "https://www.linkedin.com/in/usha-k-14665527b/"
+        "profile_link": "https://www.linkedin.com/in/usha-k-14665527b/",
+        "sent": true,
+        "timestamp": "2026-08-01 20:16:13",
+        "withdrawn": false
     },
     {
         "name": "KRISHNKANT KUMAR",
