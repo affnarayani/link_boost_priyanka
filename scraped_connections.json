@@ -239,7 +239,10 @@
     },
     {
         "name": "Ajit Jha",
-        "profile_link": "https://www.linkedin.com/in/ajit-jha-395b18400/"
+        "profile_link": "https://www.linkedin.com/in/ajit-jha-395b18400/",
+        "sent": true,
+        "timestamp": "2026-08-01 11:27:45",
+        "withdrawn": false
     },
     {
         "name": "Priya Singhania",
