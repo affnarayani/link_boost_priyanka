@@ -316,7 +316,10 @@
     },
     {
         "name": "Tej Pratap Singh",
-        "profile_link": "https://www.linkedin.com/in/tej-pratap-singh-662723241/"
+        "profile_link": "https://www.linkedin.com/in/tej-pratap-singh-662723241/",
+        "sent": true,
+        "timestamp": "2026-08-01 23:18:35",
+        "withdrawn": false
     },
     {
         "name": "siddharth kumar",
