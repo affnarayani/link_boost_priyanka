@@ -386,7 +386,10 @@
     },
     {
         "name": "Rubasha Perween",
-        "profile_link": "https://www.linkedin.com/in/rubasha-perween-28b48021a/"
+        "profile_link": "https://www.linkedin.com/in/rubasha-perween-28b48021a/",
+        "sent": true,
+        "timestamp": "2026-08-02 13:07:13",
+        "withdrawn": false
     },
     {
         "name": "Adv. Ashish Kr Nishad",
