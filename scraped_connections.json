@@ -393,7 +393,10 @@
     },
     {
         "name": "Adv. Ashish Kr Nishad",
-        "profile_link": "https://www.linkedin.com/in/adv-ashish-kr-nishad-46a3901ba/"
+        "profile_link": "https://www.linkedin.com/in/adv-ashish-kr-nishad-46a3901ba/",
+        "sent": true,
+        "timestamp": "2026-08-02 14:15:38",
+        "withdrawn": false
     },
     {
         "name": "Anmol Ratan",
