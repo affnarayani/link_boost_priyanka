@@ -222,7 +222,10 @@
         "posted": true
     },
     {
-        "topic": "Rejecting a plaint at the earliest stage - an underused defence"
+        "topic": "Rejecting a plaint at the earliest stage - an underused defence",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Why convictions for animal cruelty remain so rare"
