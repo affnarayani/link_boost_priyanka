@@ -407,7 +407,10 @@
     },
     {
         "name": "Ashish Sharma",
-        "profile_link": "https://www.linkedin.com/in/ashish-sharma-0b60b724b/"
+        "profile_link": "https://www.linkedin.com/in/ashish-sharma-0b60b724b/",
+        "sent": true,
+        "timestamp": "2026-08-02 15:08:06",
+        "withdrawn": false
     },
     {
         "name": "Siddhi Rupa",
