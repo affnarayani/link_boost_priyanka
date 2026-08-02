@@ -400,7 +400,10 @@
     },
     {
         "name": "Anmol Ratan",
-        "profile_link": "https://www.linkedin.com/in/anmol-ratan-41164a30a/"
+        "profile_link": "https://www.linkedin.com/in/anmol-ratan-41164a30a/",
+        "sent": true,
+        "timestamp": "2026-08-02 14:39:44",
+        "withdrawn": false
     },
     {
         "name": "Ashish Sharma",
