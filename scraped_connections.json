@@ -358,7 +358,10 @@
     },
     {
         "name": "Arbaaz Khan",
-        "profile_link": "https://www.linkedin.com/in/arbaaz-khan-872999202/"
+        "profile_link": "https://www.linkedin.com/in/arbaaz-khan-872999202/",
+        "sent": true,
+        "timestamp": "2026-08-02 09:38:36",
+        "withdrawn": false
     },
     {
         "name": "SAURAV BARIAL",
