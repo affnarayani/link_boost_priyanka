@@ -414,7 +414,10 @@
     },
     {
         "name": "Siddhi Rupa",
-        "profile_link": "https://www.linkedin.com/in/siddhirupa/"
+        "profile_link": "https://www.linkedin.com/in/siddhirupa/",
+        "sent": true,
+        "timestamp": "2026-08-02 19:42:00",
+        "withdrawn": false
     },
     {
         "name": "Sakshi Singh",
