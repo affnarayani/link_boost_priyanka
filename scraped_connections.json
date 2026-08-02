@@ -330,7 +330,10 @@
     },
     {
         "name": "Adv Manisha",
-        "profile_link": "https://www.linkedin.com/in/adv-manisha-3287b5415/"
+        "profile_link": "https://www.linkedin.com/in/adv-manisha-3287b5415/",
+        "sent": true,
+        "timestamp": "2026-08-02 06:30:47",
+        "withdrawn": false
     },
     {
         "name": "Satya Prakash",
