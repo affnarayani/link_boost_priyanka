@@ -540,7 +540,10 @@
     },
     {
         "name": "Puja Gupta",
-        "profile_link": "https://www.linkedin.com/in/puja-gupta-9ab055370/"
+        "profile_link": "https://www.linkedin.com/in/puja-gupta-9ab055370/",
+        "sent": true,
+        "timestamp": "2026-08-03 20:15:56",
+        "withdrawn": false
     },
     {
         "name": "Syed Ibrahim Quli",
