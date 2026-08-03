@@ -547,7 +547,10 @@
     },
     {
         "name": "Syed Ibrahim Quli",
-        "profile_link": "https://www.linkedin.com/in/syed-ibrahim-quli-621731186/"
+        "profile_link": "https://www.linkedin.com/in/syed-ibrahim-quli-621731186/",
+        "sent": true,
+        "timestamp": "2026-08-03 20:20:50",
+        "withdrawn": false
     },
     {
         "name": "Ginni Priya",
