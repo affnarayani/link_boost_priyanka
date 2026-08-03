@@ -484,7 +484,10 @@
     },
     {
         "name": "Dharmpal Kumar Sinha",
-        "profile_link": "https://www.linkedin.com/in/dharmpal-kumar-sinha/"
+        "profile_link": "https://www.linkedin.com/in/dharmpal-kumar-sinha/",
+        "sent": true,
+        "timestamp": "2026-08-03 13:20:21",
+        "withdrawn": false
     },
     {
         "name": "Sanjeev Kumar",
