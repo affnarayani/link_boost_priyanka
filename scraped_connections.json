@@ -554,7 +554,10 @@
     },
     {
         "name": "Ginni Priya",
-        "profile_link": "https://www.linkedin.com/in/ginni-priya-90304533b/"
+        "profile_link": "https://www.linkedin.com/in/ginni-priya-90304533b/",
+        "sent": true,
+        "timestamp": "2026-08-03 21:18:12",
+        "withdrawn": false
     },
     {
         "name": "VIKASH KUMAR SINGH",
