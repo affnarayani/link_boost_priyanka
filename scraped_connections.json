@@ -505,7 +505,10 @@
     },
     {
         "name": "Amrita Yadav",
-        "profile_link": "https://www.linkedin.com/in/amrita-yadav-16866739a/"
+        "profile_link": "https://www.linkedin.com/in/amrita-yadav-16866739a/",
+        "sent": true,
+        "timestamp": "2026-08-03 16:44:52",
+        "withdrawn": false
     },
     {
         "name": "MD KAMRAN TAUHEED",
