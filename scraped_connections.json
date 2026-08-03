@@ -498,7 +498,10 @@
     },
     {
         "name": "Rinshi Shivam",
-        "profile_link": "https://www.linkedin.com/in/rinshi-shivam-90622b18b/"
+        "profile_link": "https://www.linkedin.com/in/rinshi-shivam-90622b18b/",
+        "sent": true,
+        "timestamp": "2026-08-03 16:41:26",
+        "withdrawn": false
     },
     {
         "name": "Amrita Yadav",
