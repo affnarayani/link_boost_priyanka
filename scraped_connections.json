@@ -477,7 +477,10 @@
     },
     {
         "name": "Divya Kumari Karn",
-        "profile_link": "https://www.linkedin.com/in/divya-kumari-karn-9b058639b/"
+        "profile_link": "https://www.linkedin.com/in/divya-kumari-karn-9b058639b/",
+        "sent": true,
+        "timestamp": "2026-08-03 12:20:44",
+        "withdrawn": false
     },
     {
         "name": "Dharmpal Kumar Sinha",
