@@ -533,7 +533,10 @@
     },
     {
         "name": "Karan Arjun",
-        "profile_link": "https://www.linkedin.com/in/karan-arjun-241103392/"
+        "profile_link": "https://www.linkedin.com/in/karan-arjun-241103392/",
+        "sent": true,
+        "timestamp": "2026-08-03 18:32:04",
+        "withdrawn": false
     },
     {
         "name": "Puja Gupta",
