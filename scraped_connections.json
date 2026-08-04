@@ -673,7 +673,10 @@
     },
     {
         "name": "Bimlesh kumar Jha",
-        "profile_link": "https://www.linkedin.com/in/bimlesh-kumar-jha-6b27371b0/"
+        "profile_link": "https://www.linkedin.com/in/bimlesh-kumar-jha-6b27371b0/",
+        "sent": true,
+        "timestamp": "2026-08-04 15:40:30",
+        "withdrawn": false
     },
     {
         "name": "Abhisek tiwari",
