@@ -617,7 +617,10 @@
     },
     {
         "name": "Adv Aakash Agrawal",
-        "profile_link": "https://www.linkedin.com/in/adv-aakash-agrawal-4b27a3401/"
+        "profile_link": "https://www.linkedin.com/in/adv-aakash-agrawal-4b27a3401/",
+        "sent": true,
+        "timestamp": "2026-08-04 06:42:51",
+        "withdrawn": false
     },
     {
         "name": "Neha Kumari",
