@@ -785,7 +785,10 @@
     },
     {
         "name": "Raj Vardhan Singh",
-        "profile_link": "https://www.linkedin.com/in/raj-vardhan-singh-69a3381aa/"
+        "profile_link": "https://www.linkedin.com/in/raj-vardhan-singh-69a3381aa/",
+        "sent": true,
+        "timestamp": "2026-08-05 16:54:56",
+        "withdrawn": false
     },
     {
         "name": "Rishi Pal",
