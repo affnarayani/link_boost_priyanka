@@ -778,7 +778,10 @@
     },
     {
         "name": "Rashmi Sinha",
-        "profile_link": "https://www.linkedin.com/in/rashmi-sinha-09292638/"
+        "profile_link": "https://www.linkedin.com/in/rashmi-sinha-09292638/",
+        "sent": true,
+        "timestamp": "2026-08-05 16:52:06",
+        "withdrawn": false
     },
     {
         "name": "Raj Vardhan Singh",
