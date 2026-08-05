@@ -240,7 +240,10 @@
         "posted": true
     },
     {
-        "topic": "Second wife's maintenance rights - a genuine grey area in law"
+        "topic": "Second wife's maintenance rights - a genuine grey area in law",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Forensic lab report delays - impact on NDPS trials"
