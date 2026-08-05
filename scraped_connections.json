@@ -813,7 +813,10 @@
     },
     {
         "name": "Manisha Khushi",
-        "profile_link": "https://www.linkedin.com/in/manisha-khushi-b277641b6/"
+        "profile_link": "https://www.linkedin.com/in/manisha-khushi-b277641b6/",
+        "sent": true,
+        "timestamp": "2026-08-05 20:17:29",
+        "withdrawn": false
     },
     {
         "name": "Abinash Narayan",
