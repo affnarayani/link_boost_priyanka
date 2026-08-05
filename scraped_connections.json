@@ -792,7 +792,10 @@
     },
     {
         "name": "Rishi Pal",
-        "profile_link": "https://www.linkedin.com/in/rishi-pal-800b17264/"
+        "profile_link": "https://www.linkedin.com/in/rishi-pal-800b17264/",
+        "sent": true,
+        "timestamp": "2026-08-05 16:58:23",
+        "withdrawn": false
     },
     {
         "name": "Kaushiki Ranjan",
