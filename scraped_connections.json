@@ -729,7 +729,10 @@
     },
     {
         "name": "Parth Kumar",
-        "profile_link": "https://www.linkedin.com/in/parth-kumar-12b6a31ba/"
+        "profile_link": "https://www.linkedin.com/in/parth-kumar-12b6a31ba/",
+        "sent": true,
+        "timestamp": "2026-08-05 09:16:38",
+        "withdrawn": false
     },
     {
         "name": "Anubhav Kumar Verma",
