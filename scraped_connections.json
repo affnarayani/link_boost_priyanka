@@ -806,7 +806,10 @@
     },
     {
         "name": "Avinash Chandra",
-        "profile_link": "https://www.linkedin.com/in/avinash-chandra-6732902bb/"
+        "profile_link": "https://www.linkedin.com/in/avinash-chandra-6732902bb/",
+        "sent": true,
+        "timestamp": "2026-08-05 19:56:26",
+        "withdrawn": false
     },
     {
         "name": "Manisha Khushi",
