@@ -869,7 +869,10 @@
     },
     {
         "name": "Abhiraj Pujan",
-        "profile_link": "https://www.linkedin.com/in/abhiraj-pujan-734182215/"
+        "profile_link": "https://www.linkedin.com/in/abhiraj-pujan-734182215/",
+        "sent": true,
+        "timestamp": "2026-08-06 11:06:27",
+        "withdrawn": false
     },
     {
         "name": "Aditya Srijan",
