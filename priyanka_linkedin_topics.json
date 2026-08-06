@@ -246,7 +246,10 @@
         "posted": true
     },
     {
-        "topic": "Forensic lab report delays - impact on NDPS trials"
+        "topic": "Forensic lab report delays - impact on NDPS trials",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Live-in relationships - what legal protection actually exists"
