@@ -827,7 +827,10 @@
     },
     {
         "name": "Advocate Akanksha Rai",
-        "profile_link": "https://www.linkedin.com/in/advocate-akanksha-rai-a095b3335/"
+        "profile_link": "https://www.linkedin.com/in/advocate-akanksha-rai-a095b3335/",
+        "sent": true,
+        "timestamp": "2026-08-06 05:35:43",
+        "withdrawn": false
     },
     {
         "name": "Abhishek Singh",
