@@ -862,7 +862,10 @@
     },
     {
         "name": "Sheetal Sharma",
-        "profile_link": "https://www.linkedin.com/in/sheetal-sharma-95216a179/"
+        "profile_link": "https://www.linkedin.com/in/sheetal-sharma-95216a179/",
+        "sent": true,
+        "timestamp": "2026-08-06 10:17:35",
+        "withdrawn": false
     },
     {
         "name": "Abhiraj Pujan",
