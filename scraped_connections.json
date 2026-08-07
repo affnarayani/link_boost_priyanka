@@ -925,7 +925,10 @@
     },
     {
         "name": "Rishabh Rao",
-        "profile_link": "https://www.linkedin.com/in/rishabh-rao-a3829b292/"
+        "profile_link": "https://www.linkedin.com/in/rishabh-rao-a3829b292/",
+        "sent": true,
+        "timestamp": "2026-08-07 01:39:37",
+        "withdrawn": false
     },
     {
         "name": "Satyam Jha",
