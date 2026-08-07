@@ -967,7 +967,10 @@
     },
     {
         "name": "Abhiyuday Anand",
-        "profile_link": "https://www.linkedin.com/in/abhiyuday-anand-ab1881228/"
+        "profile_link": "https://www.linkedin.com/in/abhiyuday-anand-ab1881228/",
+        "sent": true,
+        "timestamp": "2026-08-07 11:30:51",
+        "withdrawn": false
     },
     {
         "name": "Amit Basak",
