@@ -911,7 +911,10 @@
     },
     {
         "name": "Mayank Raj",
-        "profile_link": "https://www.linkedin.com/in/mayank-raj-cnlu/"
+        "profile_link": "https://www.linkedin.com/in/mayank-raj-cnlu/",
+        "sent": true,
+        "timestamp": "2026-08-07 00:56:19",
+        "withdrawn": false
     },
     {
         "name": "AKSHARA Sinha",
