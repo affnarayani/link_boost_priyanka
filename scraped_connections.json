@@ -1030,7 +1030,10 @@
     },
     {
         "name": "Adv. Priyanka D",
-        "profile_link": "https://www.linkedin.com/in/adv-priyanka-d-62164b284/"
+        "profile_link": "https://www.linkedin.com/in/adv-priyanka-d-62164b284/",
+        "sent": true,
+        "timestamp": "2026-08-07 19:56:07",
+        "withdrawn": false
     },
     {
         "name": "Ankit Ranjan",
