@@ -995,7 +995,10 @@
     },
     {
         "name": "Gaurav Jairaj",
-        "profile_link": "https://www.linkedin.com/in/gaurav-jairaj-373466189/"
+        "profile_link": "https://www.linkedin.com/in/gaurav-jairaj-373466189/",
+        "sent": true,
+        "timestamp": "2026-08-07 16:16:13",
+        "withdrawn": false
     },
     {
         "name": "Advocate Mohammad Fahim",
