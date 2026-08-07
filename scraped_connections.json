@@ -988,7 +988,10 @@
     },
     {
         "name": "Nikhil Kumar Singh",
-        "profile_link": "https://www.linkedin.com/in/nikhil-singh-adv/"
+        "profile_link": "https://www.linkedin.com/in/nikhil-singh-adv/",
+        "sent": true,
+        "timestamp": "2026-08-07 15:07:25",
+        "withdrawn": false
     },
     {
         "name": "Gaurav Jairaj",
