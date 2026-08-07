@@ -918,7 +918,10 @@
     },
     {
         "name": "AKSHARA Sinha",
-        "profile_link": "https://www.linkedin.com/in/akshara-sinha-b60297218/"
+        "profile_link": "https://www.linkedin.com/in/akshara-sinha-b60297218/",
+        "sent": true,
+        "timestamp": "2026-08-07 00:59:02",
+        "withdrawn": false
     },
     {
         "name": "Rishabh Rao",
