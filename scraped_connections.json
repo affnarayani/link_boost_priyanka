@@ -1156,7 +1156,10 @@
     },
     {
         "name": "Sweta Kumari",
-        "profile_link": "https://www.linkedin.com/in/sweta-kumari-7a00622b5/"
+        "profile_link": "https://www.linkedin.com/in/sweta-kumari-7a00622b5/",
+        "sent": true,
+        "timestamp": "2026-08-08 19:21:20",
+        "withdrawn": false
     },
     {
         "name": "Ravi Ranjan Mallick",
