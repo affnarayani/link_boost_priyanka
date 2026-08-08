@@ -1072,7 +1072,10 @@
     },
     {
         "name": "Krinjal Bhartiya",
-        "profile_link": "https://www.linkedin.com/in/krinjal-bhartiya-530244236/"
+        "profile_link": "https://www.linkedin.com/in/krinjal-bhartiya-530244236/",
+        "sent": true,
+        "timestamp": "2026-08-08 06:45:45",
+        "withdrawn": false
     },
     {
         "name": "Shashank Shekhar",
