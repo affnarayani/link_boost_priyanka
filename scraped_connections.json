@@ -1135,7 +1135,10 @@
     },
     {
         "name": "Arwaz Afroz",
-        "profile_link": "https://www.linkedin.com/in/arwaz-afroz-573b4835b/"
+        "profile_link": "https://www.linkedin.com/in/arwaz-afroz-573b4835b/",
+        "sent": true,
+        "timestamp": "2026-08-08 14:57:10",
+        "withdrawn": false
     },
     {
         "name": "Saroj Kumar Upadhyay",
