@@ -1163,7 +1163,10 @@
     },
     {
         "name": "Ravi Ranjan Mallick",
-        "profile_link": "https://www.linkedin.com/in/ravi-ranjan-mallick-b8755b276/"
+        "profile_link": "https://www.linkedin.com/in/ravi-ranjan-mallick-b8755b276/",
+        "sent": true,
+        "timestamp": "2026-08-08 20:56:41",
+        "withdrawn": false
     },
     {
         "name": "Sanjay Kumar Tiwary",
