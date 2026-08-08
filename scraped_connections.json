@@ -1121,7 +1121,10 @@
     },
     {
         "name": "Raghvendra Kumar Pratik",
-        "profile_link": "https://www.linkedin.com/in/raghvendra-kumar-pratik-80937440b/"
+        "profile_link": "https://www.linkedin.com/in/raghvendra-kumar-pratik-80937440b/",
+        "sent": true,
+        "timestamp": "2026-08-08 13:43:42",
+        "withdrawn": false
     },
     {
         "name": "SHAILJA SINGH",
