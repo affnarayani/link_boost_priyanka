@@ -258,7 +258,10 @@
         "posted": true
     },
     {
-        "topic": "Witness protection scheme - does it work in practice"
+        "topic": "Witness protection scheme - does it work in practice",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Abetment to suicide - what evidence courts actually look for"
