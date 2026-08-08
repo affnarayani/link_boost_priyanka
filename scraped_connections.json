@@ -1107,7 +1107,10 @@
     },
     {
         "name": "Adv. Vaibhav Kumar",
-        "profile_link": "https://www.linkedin.com/in/adv-vaibhav-kumar-ba0571342/"
+        "profile_link": "https://www.linkedin.com/in/adv-vaibhav-kumar-ba0571342/",
+        "sent": true,
+        "timestamp": "2026-08-08 10:58:21",
+        "withdrawn": false
     },
     {
         "name": "Aaditya Dutta",
