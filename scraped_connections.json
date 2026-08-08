@@ -1128,7 +1128,10 @@
     },
     {
         "name": "SHAILJA SINGH",
-        "profile_link": "https://www.linkedin.com/in/shailja-singh-449169294/"
+        "profile_link": "https://www.linkedin.com/in/shailja-singh-449169294/",
+        "sent": true,
+        "timestamp": "2026-08-08 14:47:17",
+        "withdrawn": false
     },
     {
         "name": "Arwaz Afroz",
