@@ -1289,7 +1289,10 @@
     },
     {
         "name": "Chamanprit Kaur",
-        "profile_link": "https://www.linkedin.com/in/chamanprit-kaur-253332206/"
+        "profile_link": "https://www.linkedin.com/in/chamanprit-kaur-253332206/",
+        "sent": true,
+        "timestamp": "2026-08-09 21:24:20",
+        "withdrawn": false
     },
     {
         "name": "Jitendra Yadav Bhartiya",
