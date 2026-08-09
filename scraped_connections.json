@@ -1282,7 +1282,10 @@
     },
     {
         "name": "Ajay Kumar",
-        "profile_link": "https://www.linkedin.com/in/ajay-kumar-4234141aa/"
+        "profile_link": "https://www.linkedin.com/in/ajay-kumar-4234141aa/",
+        "sent": true,
+        "timestamp": "2026-08-09 20:17:05",
+        "withdrawn": false
     },
     {
         "name": "Chamanprit Kaur",
