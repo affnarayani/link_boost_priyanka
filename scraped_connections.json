@@ -1268,7 +1268,10 @@
     },
     {
         "name": "Shivam Thakur",
-        "profile_link": "https://www.linkedin.com/in/shivam-thakur-8522403a2/"
+        "profile_link": "https://www.linkedin.com/in/shivam-thakur-8522403a2/",
+        "sent": true,
+        "timestamp": "2026-08-09 15:05:28",
+        "withdrawn": false
     },
     {
         "name": "Adv. Rahul Chaturvedi",
