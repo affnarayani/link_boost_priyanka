@@ -1212,7 +1212,10 @@
     },
     {
         "name": "Ravi Nandan",
-        "profile_link": "https://www.linkedin.com/in/ravi-nandan-612b583a2/"
+        "profile_link": "https://www.linkedin.com/in/ravi-nandan-612b583a2/",
+        "sent": true,
+        "timestamp": "2026-08-09 05:19:29",
+        "withdrawn": false
     },
     {
         "name": "Baidyanath Sharan",
