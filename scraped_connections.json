@@ -1303,7 +1303,10 @@
     },
     {
         "name": "Rajesh K Sinha",
-        "profile_link": "https://www.linkedin.com/in/rajesh-k-sinha-3b9512286/"
+        "profile_link": "https://www.linkedin.com/in/rajesh-k-sinha-3b9512286/",
+        "sent": true,
+        "timestamp": "2026-08-09 21:58:28",
+        "withdrawn": false
     },
     {
         "name": "Prashant Kashyap",
