@@ -1205,7 +1205,10 @@
     },
     {
         "name": "Yashee Sharan",
-        "profile_link": "https://www.linkedin.com/in/yashee-sharan-4421801aa/"
+        "profile_link": "https://www.linkedin.com/in/yashee-sharan-4421801aa/",
+        "sent": true,
+        "timestamp": "2026-08-09 04:09:21",
+        "withdrawn": false
     },
     {
         "name": "Ravi Nandan",
