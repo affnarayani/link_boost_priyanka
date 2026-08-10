@@ -1338,7 +1338,10 @@
     },
     {
         "name": "Rupesh Kumar Roy",
-        "profile_link": "https://www.linkedin.com/in/rupesh-kumar-roy-54798637b/"
+        "profile_link": "https://www.linkedin.com/in/rupesh-kumar-roy-54798637b/",
+        "sent": true,
+        "timestamp": "2026-08-10 09:05:21",
+        "withdrawn": false
     },
     {
         "name": "Shyam Kumar",
