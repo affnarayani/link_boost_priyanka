@@ -270,7 +270,10 @@
         "posted": true
     },
     {
-        "topic": "Breach of confidentiality and privacy online - the legal remedy"
+        "topic": "Breach of confidentiality and privacy online - the legal remedy",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Crypto fraud complaints - which agency actually has jurisdiction"
