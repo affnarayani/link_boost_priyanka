@@ -1352,7 +1352,10 @@
     },
     {
         "name": "SHAMBHU NATH SAH",
-        "profile_link": "https://www.linkedin.com/in/shambhu-nath-sah-3511753aa/"
+        "profile_link": "https://www.linkedin.com/in/shambhu-nath-sah-3511753aa/",
+        "sent": true,
+        "timestamp": "2026-08-10 11:39:07",
+        "withdrawn": false
     },
     {
         "name": "Masoom Alam",
