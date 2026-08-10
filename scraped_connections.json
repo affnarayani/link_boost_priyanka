@@ -1436,7 +1436,10 @@
     },
     {
         "name": "Yatharth Pandey",
-        "profile_link": "https://www.linkedin.com/in/yatharth-pandey-9792351b7/"
+        "profile_link": "https://www.linkedin.com/in/yatharth-pandey-9792351b7/",
+        "sent": true,
+        "timestamp": "2026-08-10 22:03:36",
+        "withdrawn": false
     },
     {
         "name": "Ruchi Kumari",
