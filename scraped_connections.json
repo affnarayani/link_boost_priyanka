@@ -1331,7 +1331,10 @@
     },
     {
         "name": "Adv. Dilip Ranjan",
-        "profile_link": "https://www.linkedin.com/in/adv-dilip-ranjan-b063a0334/"
+        "profile_link": "https://www.linkedin.com/in/adv-dilip-ranjan-b063a0334/",
+        "sent": true,
+        "timestamp": "2026-08-10 07:26:09",
+        "withdrawn": false
     },
     {
         "name": "Rupesh Kumar Roy",
