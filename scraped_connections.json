@@ -1317,7 +1317,10 @@
     },
     {
         "name": "Abhishek Raj",
-        "profile_link": "https://www.linkedin.com/in/abhishek-raj-4897a7274/"
+        "profile_link": "https://www.linkedin.com/in/abhishek-raj-4897a7274/",
+        "sent": true,
+        "timestamp": "2026-08-10 04:44:30",
+        "withdrawn": false
     },
     {
         "name": "Santosh Kumar",
