@@ -1534,7 +1534,10 @@
     },
     {
         "name": "shailendra kumar",
-        "profile_link": "https://www.linkedin.com/in/shailendra-kumar-520430303/"
+        "profile_link": "https://www.linkedin.com/in/shailendra-kumar-520430303/",
+        "sent": true,
+        "timestamp": "2026-08-11 18:02:59",
+        "withdrawn": false
     },
     {
         "name": "Shristi Shikha",
