@@ -1548,7 +1548,10 @@
     },
     {
         "name": "Rajnish Kumar Pathak",
-        "profile_link": "https://www.linkedin.com/in/rajnish-kumar-pathak-b93565221/"
+        "profile_link": "https://www.linkedin.com/in/rajnish-kumar-pathak-b93565221/",
+        "sent": true,
+        "timestamp": "2026-08-11 21:12:46",
+        "withdrawn": false
     },
     {
         "name": "Mukesh Gautam",
