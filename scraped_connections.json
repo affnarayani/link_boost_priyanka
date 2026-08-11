@@ -1457,7 +1457,10 @@
     },
     {
         "name": "Rakesh Sharma",
-        "profile_link": "https://www.linkedin.com/in/rakesh767741/"
+        "profile_link": "https://www.linkedin.com/in/rakesh767741/",
+        "sent": true,
+        "timestamp": "2026-08-11 04:50:37",
+        "withdrawn": false
     },
     {
         "name": "Noumaan Ahmad, Adv",
