@@ -1513,7 +1513,10 @@
     },
     {
         "name": "Jahangir Ali",
-        "profile_link": "https://www.linkedin.com/in/jahangir-ali-4b4530363/"
+        "profile_link": "https://www.linkedin.com/in/jahangir-ali-4b4530363/",
+        "sent": true,
+        "timestamp": "2026-08-11 11:08:10",
+        "withdrawn": false
     },
     {
         "name": "Waquar Ahmad",
