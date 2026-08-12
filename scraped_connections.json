@@ -1653,7 +1653,10 @@
     },
     {
         "name": "Shankar Kumar Thakur",
-        "profile_link": "https://www.linkedin.com/in/shankar-kumar-thakur-7967809a/"
+        "profile_link": "https://www.linkedin.com/in/shankar-kumar-thakur-7967809a/",
+        "sent": true,
+        "timestamp": "2026-08-12 17:34:37",
+        "withdrawn": false
     },
     {
         "name": "SHAKTI GAURAV",
