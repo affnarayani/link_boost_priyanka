@@ -1660,7 +1660,10 @@
     },
     {
         "name": "SHAKTI GAURAV",
-        "profile_link": "https://www.linkedin.com/in/shakti-gaurav-939594206/"
+        "profile_link": "https://www.linkedin.com/in/shakti-gaurav-939594206/",
+        "sent": true,
+        "timestamp": "2026-08-12 17:44:02",
+        "withdrawn": false
     },
     {
         "name": "vishakha bairoliya",
