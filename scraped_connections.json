@@ -1688,7 +1688,10 @@
     },
     {
         "name": "Vandna Rani",
-        "profile_link": "https://www.linkedin.com/in/vandna-rani-45750922a/"
+        "profile_link": "https://www.linkedin.com/in/vandna-rani-45750922a/",
+        "sent": true,
+        "timestamp": "2026-08-12 19:51:14",
+        "withdrawn": false
     },
     {
         "name": "Ravi Kumar",
