@@ -1569,7 +1569,10 @@
     },
     {
         "name": "Mani Bhushan",
-        "profile_link": "https://www.linkedin.com/in/mani-bhushan-b419a71b8/"
+        "profile_link": "https://www.linkedin.com/in/mani-bhushan-b419a71b8/",
+        "sent": true,
+        "timestamp": "2026-08-12 04:20:18",
+        "withdrawn": false
     },
     {
         "name": "GBS Law Chambers",
