@@ -1590,7 +1590,10 @@
     },
     {
         "name": "Prity Kumari",
-        "profile_link": "https://www.linkedin.com/in/prity-kumari-a763331b6/"
+        "profile_link": "https://www.linkedin.com/in/prity-kumari-a763331b6/",
+        "sent": true,
+        "timestamp": "2026-08-12 07:47:37",
+        "withdrawn": false
     },
     {
         "name": "SHIKHA singh yadav",
