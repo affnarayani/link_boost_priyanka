@@ -1618,7 +1618,10 @@
     },
     {
         "name": "Vadini Gupta",
-        "profile_link": "https://www.linkedin.com/in/vadini-gupta-191b831b6/"
+        "profile_link": "https://www.linkedin.com/in/vadini-gupta-191b831b6/",
+        "sent": true,
+        "timestamp": "2026-08-12 11:14:20",
+        "withdrawn": false
     },
     {
         "name": "Ashish Ranjan",
