@@ -288,7 +288,10 @@
         "posted": true
     },
     {
-        "topic": "Cyber insurance claims - what policies actually cover"
+        "topic": "Cyber insurance claims - what policies actually cover",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Quashing of FIR - when High Courts actually intervene"
