@@ -1695,7 +1695,10 @@
     },
     {
         "name": "Ravi Kumar",
-        "profile_link": "https://www.linkedin.com/in/ravi-kumar-514934314/"
+        "profile_link": "https://www.linkedin.com/in/ravi-kumar-514934314/",
+        "sent": true,
+        "timestamp": "2026-08-13 04:20:12",
+        "withdrawn": false
     },
     {
         "name": "Vikash Kumar Jha",
