@@ -1744,7 +1744,10 @@
     },
     {
         "name": "Raushan Kumar",
-        "profile_link": "https://www.linkedin.com/in/raushan-kumar-860732278/"
+        "profile_link": "https://www.linkedin.com/in/raushan-kumar-860732278/",
+        "sent": true,
+        "timestamp": "2026-08-13 07:09:15",
+        "withdrawn": false
     },
     {
         "name": "Aakriti Prasad",
