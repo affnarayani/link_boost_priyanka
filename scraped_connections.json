@@ -1702,7 +1702,10 @@
     },
     {
         "name": "Vikash Kumar Jha",
-        "profile_link": "https://www.linkedin.com/in/vikash-kumar-jha-77b444311/"
+        "profile_link": "https://www.linkedin.com/in/vikash-kumar-jha-77b444311/",
+        "sent": true,
+        "timestamp": "2026-08-13 05:48:20",
+        "withdrawn": false
     },
     {
         "name": "Sunit Kumar Srivastava",
