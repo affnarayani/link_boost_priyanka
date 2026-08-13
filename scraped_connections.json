@@ -1751,7 +1751,10 @@
     },
     {
         "name": "Aakriti Prasad",
-        "profile_link": "https://www.linkedin.com/in/aakriti-prasad-954866235/"
+        "profile_link": "https://www.linkedin.com/in/aakriti-prasad-954866235/",
+        "sent": true,
+        "timestamp": "2026-08-13 07:46:49",
+        "withdrawn": false
     },
     {
         "name": "JAGDISH PRASAD SINGH",
