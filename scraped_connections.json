@@ -1779,7 +1779,10 @@
     },
     {
         "name": "Adarsh Kumar",
-        "profile_link": "https://www.linkedin.com/in/adarsh-kumar-9b740a33b/"
+        "profile_link": "https://www.linkedin.com/in/adarsh-kumar-9b740a33b/",
+        "sent": true,
+        "timestamp": "2026-08-13 09:08:13",
+        "withdrawn": false
     },
     {
         "name": "Rekha Prasad",
