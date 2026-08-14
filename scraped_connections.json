@@ -1821,7 +1821,10 @@
     },
     {
         "name": "Diksha K.",
-        "profile_link": "https://www.linkedin.com/in/dikshu/"
+        "profile_link": "https://www.linkedin.com/in/dikshu/",
+        "sent": true,
+        "timestamp": "2026-08-14 04:32:19",
+        "withdrawn": false
     },
     {
         "name": "JAISHANKAR KUMAR YADAV",
