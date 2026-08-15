@@ -1982,7 +1982,10 @@
     },
     {
         "name": "Ghunghroo Anand",
-        "profile_link": "https://www.linkedin.com/in/ghunghroo-anand-072a9022a/"
+        "profile_link": "https://www.linkedin.com/in/ghunghroo-anand-072a9022a/",
+        "sent": true,
+        "timestamp": "2026-08-15 13:21:29",
+        "withdrawn": false
     },
     {
         "name": "Archit R.",
