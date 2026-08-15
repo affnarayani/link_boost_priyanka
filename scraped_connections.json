@@ -1989,7 +1989,10 @@
     },
     {
         "name": "Archit R.",
-        "profile_link": "https://www.linkedin.com/in/archit-r-38b19a68/"
+        "profile_link": "https://www.linkedin.com/in/archit-r-38b19a68/",
+        "sent": true,
+        "timestamp": "2026-08-15 13:39:51",
+        "withdrawn": false
     },
     {
         "name": "NUTAN SAHAY",
