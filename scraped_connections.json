@@ -1975,7 +1975,10 @@
     },
     {
         "name": "Viveka Nand",
-        "profile_link": "https://www.linkedin.com/in/viveka-nand-83a0aa325/"
+        "profile_link": "https://www.linkedin.com/in/viveka-nand-83a0aa325/",
+        "sent": true,
+        "timestamp": "2026-08-15 11:32:01",
+        "withdrawn": false
     },
     {
         "name": "Ghunghroo Anand",
