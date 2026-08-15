@@ -1947,7 +1947,10 @@
     },
     {
         "name": "Rahul Sharma",
-        "profile_link": "https://www.linkedin.com/in/rahul-sharma-835b6641b/"
+        "profile_link": "https://www.linkedin.com/in/rahul-sharma-835b6641b/",
+        "sent": true,
+        "timestamp": "2026-08-15 03:24:11",
+        "withdrawn": false
     },
     {
         "name": "Saqib Madni",
