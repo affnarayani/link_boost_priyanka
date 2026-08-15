@@ -2003,7 +2003,10 @@
     },
     {
         "name": "rk biru",
-        "profile_link": "https://www.linkedin.com/in/rk-biru-382464255/"
+        "profile_link": "https://www.linkedin.com/in/rk-biru-382464255/",
+        "sent": true,
+        "timestamp": "2026-08-15 16:02:29",
+        "withdrawn": false
     },
     {
         "name": "Abhilasha Kumari",
