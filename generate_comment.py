@@ -355,7 +355,7 @@ def run():
 
         # STABLE Live Stream Check
         print("[STEP] Waiting for generated JSON code block to complete writing...", flush=True)
-        code_block_locator = page.locator('#code-block-viewer pre')
+        code_block_locator = page.locator('#code-block-viewer pre').or_(page.get_by_role('textbox', name='Edit code'))
         
         json_content = None
         for attempt in range(1, 6):

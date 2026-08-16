@@ -144,7 +144,7 @@ def login_and_get_context(is_headless: bool = HEADLESS):
 
     try:
         me_button = page.get_by_role("button", name="Me", exact=True)
-        me_button.wait_for(state="visible", timeout=15000)
+        me_button.wait_for(state="visible", timeout=60000)
         print("[Login] Success via credentials.", flush=True)
         
         all_cookies = context.cookies()
