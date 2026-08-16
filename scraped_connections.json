@@ -2150,7 +2150,10 @@
     },
     {
         "name": "Kumar Yuvraj",
-        "profile_link": "https://www.linkedin.com/in/kumar-yuvraj-0a0772276/"
+        "profile_link": "https://www.linkedin.com/in/kumar-yuvraj-0a0772276/",
+        "sent": true,
+        "timestamp": "2026-08-16 19:03:26",
+        "withdrawn": false
     },
     {
         "name": "Kumari Adity",
