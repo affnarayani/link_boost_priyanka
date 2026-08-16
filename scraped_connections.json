@@ -2157,7 +2157,10 @@
     },
     {
         "name": "Kumari Adity",
-        "profile_link": "https://www.linkedin.com/in/kumari-adity-367221416/"
+        "profile_link": "https://www.linkedin.com/in/kumari-adity-367221416/",
+        "sent": true,
+        "timestamp": "2026-08-16 19:29:02",
+        "withdrawn": false
     },
     {
         "name": "Adv. Vishwaranjan Choudhary",
