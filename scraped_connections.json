@@ -2227,7 +2227,10 @@
     },
     {
         "name": "trivikram sharma",
-        "profile_link": "https://www.linkedin.com/in/trivikram-sharma-a71b59322/"
+        "profile_link": "https://www.linkedin.com/in/trivikram-sharma-a71b59322/",
+        "sent": true,
+        "timestamp": "2026-08-17 10:03:12",
+        "withdrawn": false
     },
     {
         "name": "Adv. Rahul Anand",
