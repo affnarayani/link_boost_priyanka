@@ -2262,7 +2262,10 @@
     },
     {
         "name": "Md Khursheed Anwar",
-        "profile_link": "https://www.linkedin.com/in/md-khursheed-anwar-655431215/"
+        "profile_link": "https://www.linkedin.com/in/md-khursheed-anwar-655431215/",
+        "sent": true,
+        "timestamp": "2026-08-17 15:06:04",
+        "withdrawn": false
     },
     {
         "name": "Md Jafar Ekbal",
