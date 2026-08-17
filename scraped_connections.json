@@ -2290,7 +2290,10 @@
     },
     {
         "name": "Kumar Bhawesh Guru",
-        "profile_link": "https://www.linkedin.com/in/kumar-bhawesh-guru-972461228/"
+        "profile_link": "https://www.linkedin.com/in/kumar-bhawesh-guru-972461228/",
+        "sent": true,
+        "timestamp": "2026-08-17 17:51:06",
+        "withdrawn": false
     },
     {
         "name": "Arun Kumar",
