@@ -306,7 +306,10 @@
         "posted": true
     },
     {
-        "topic": "The actual statutory timeline for a harassment complaint"
+        "topic": "The actual statutory timeline for a harassment complaint",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Special protections for child witnesses during testimony"
