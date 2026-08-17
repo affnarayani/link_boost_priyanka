@@ -2185,7 +2185,10 @@
     },
     {
         "name": "Varsha Rani",
-        "profile_link": "https://www.linkedin.com/in/varsha-rani-563b65257/"
+        "profile_link": "https://www.linkedin.com/in/varsha-rani-563b65257/",
+        "sent": true,
+        "timestamp": "2026-08-17 04:13:23",
+        "withdrawn": false
     },
     {
         "name": "Arun Kumar",
