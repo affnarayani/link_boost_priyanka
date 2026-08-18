@@ -2402,7 +2402,10 @@
     },
     {
         "name": "Sakshi .",
-        "profile_link": "https://www.linkedin.com/in/iamsakshiyadav/"
+        "profile_link": "https://www.linkedin.com/in/iamsakshiyadav/",
+        "sent": true,
+        "timestamp": "2026-08-18 23:20:19",
+        "withdrawn": false
     },
     {
         "name": "Anushka Roy",
