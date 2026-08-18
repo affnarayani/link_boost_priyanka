@@ -2395,7 +2395,10 @@
     },
     {
         "name": "Aastha .",
-        "profile_link": "https://www.linkedin.com/in/aastha-25085a225/"
+        "profile_link": "https://www.linkedin.com/in/aastha-25085a225/",
+        "sent": true,
+        "timestamp": "2026-08-18 23:15:59",
+        "withdrawn": false
     },
     {
         "name": "Sakshi .",
