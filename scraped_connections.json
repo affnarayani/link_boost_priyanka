@@ -2304,7 +2304,10 @@
     },
     {
         "name": "Anill Chandra",
-        "profile_link": "https://www.linkedin.com/in/anill-chandra-84bb5b282/"
+        "profile_link": "https://www.linkedin.com/in/anill-chandra-84bb5b282/",
+        "sent": true,
+        "timestamp": "2026-08-18 03:10:36",
+        "withdrawn": false
     },
     {
         "name": "ABHISHEK ANAND",
