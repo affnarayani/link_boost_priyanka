@@ -318,7 +318,10 @@
         "posted": true
     },
     {
-        "topic": "Acquittal appeal by the State - how often do they actually succeed"
+        "topic": "Acquittal appeal by the State - how often do they actually succeed",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Commercial quantity vs small quantity - why it changes everything"
