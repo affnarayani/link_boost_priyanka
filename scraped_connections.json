@@ -2479,7 +2479,10 @@
     },
     {
         "name": "Adv.Raj Kumar",
-        "profile_link": "https://www.linkedin.com/in/adv-raj-kumar-62618837a/"
+        "profile_link": "https://www.linkedin.com/in/adv-raj-kumar-62618837a/",
+        "sent": true,
+        "timestamp": "2026-08-19 14:59:18",
+        "withdrawn": false
     },
     {
         "name": "Ekta Agarwal",
