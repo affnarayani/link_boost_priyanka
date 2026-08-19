@@ -2493,7 +2493,10 @@
     },
     {
         "name": "Rakesh Pratap",
-        "profile_link": "https://www.linkedin.com/in/rakesh-pratap-644273285/"
+        "profile_link": "https://www.linkedin.com/in/rakesh-pratap-644273285/",
+        "sent": true,
+        "timestamp": "2026-08-19 22:07:24",
+        "withdrawn": false
     },
     {
         "name": "Lokesh Kumar Advocate",
