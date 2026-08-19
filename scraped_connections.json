@@ -2409,7 +2409,10 @@
     },
     {
         "name": "Anushka Roy",
-        "profile_link": "https://www.linkedin.com/in/anushka-roy-54988b215/"
+        "profile_link": "https://www.linkedin.com/in/anushka-roy-54988b215/",
+        "sent": true,
+        "timestamp": "2026-08-19 03:31:32",
+        "withdrawn": false
     },
     {
         "name": "chainika S.",
