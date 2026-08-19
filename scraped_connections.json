@@ -2437,7 +2437,10 @@
     },
     {
         "name": "Kundan Partap Singh",
-        "profile_link": "https://www.linkedin.com/in/kundan-partap-singh-920886213/"
+        "profile_link": "https://www.linkedin.com/in/kundan-partap-singh-920886213/",
+        "sent": true,
+        "timestamp": "2026-08-19 07:27:49",
+        "withdrawn": false
     },
     {
         "name": "Ritu Raj",
