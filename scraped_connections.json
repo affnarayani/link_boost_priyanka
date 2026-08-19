@@ -2444,7 +2444,10 @@
     },
     {
         "name": "Ritu Raj",
-        "profile_link": "https://www.linkedin.com/in/ritu-raj-080851200/"
+        "profile_link": "https://www.linkedin.com/in/ritu-raj-080851200/",
+        "sent": true,
+        "timestamp": "2026-08-19 10:50:44",
+        "withdrawn": false
     },
     {
         "name": "Simran Kumari",
