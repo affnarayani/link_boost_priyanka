@@ -2465,7 +2465,10 @@
     },
     {
         "name": "shalini karn",
-        "profile_link": "https://www.linkedin.com/in/shalini-karn-784460292/"
+        "profile_link": "https://www.linkedin.com/in/shalini-karn-784460292/",
+        "sent": true,
+        "timestamp": "2026-08-19 13:46:00",
+        "withdrawn": false
     },
     {
         "name": "Aditya Kumar Choudhary",
