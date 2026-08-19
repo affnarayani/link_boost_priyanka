@@ -2430,7 +2430,10 @@
     },
     {
         "name": "Adv. Preeti Singh Yadav",
-        "profile_link": "https://www.linkedin.com/in/adv-preeti-singh-yadav-21701824b/"
+        "profile_link": "https://www.linkedin.com/in/adv-preeti-singh-yadav-21701824b/",
+        "sent": true,
+        "timestamp": "2026-08-19 06:21:06",
+        "withdrawn": false
     },
     {
         "name": "Kundan Partap Singh",
