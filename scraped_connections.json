@@ -2542,7 +2542,10 @@
     },
     {
         "name": "Ashish Kumar Agrawal",
-        "profile_link": "https://www.linkedin.com/in/ashish-kumar-agrawal-7436bb18/"
+        "profile_link": "https://www.linkedin.com/in/ashish-kumar-agrawal-7436bb18/",
+        "sent": true,
+        "timestamp": "2026-08-20 10:00:23",
+        "withdrawn": false
     },
     {
         "name": "Motorola Ocean",
