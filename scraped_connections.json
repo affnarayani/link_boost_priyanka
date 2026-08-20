@@ -2605,7 +2605,10 @@
     },
     {
         "name": "Amit Kumar Yadav",
-        "profile_link": "https://www.linkedin.com/in/amit-kumar-yadav-293221272/"
+        "profile_link": "https://www.linkedin.com/in/amit-kumar-yadav-293221272/",
+        "sent": true,
+        "timestamp": "2026-08-20 19:57:13",
+        "withdrawn": false
     },
     {
         "name": "Subhankar Singh",
