@@ -324,7 +324,10 @@
         "posted": true
     },
     {
-        "topic": "Commercial quantity vs small quantity - why it changes everything"
+        "topic": "Commercial quantity vs small quantity - why it changes everything",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "The court's role in appointing an arbitrator when parties disagree"
