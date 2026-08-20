@@ -2535,7 +2535,10 @@
     },
     {
         "name": "Abhinandan Raj",
-        "profile_link": "https://www.linkedin.com/in/abhinandan-raj-a32315308/"
+        "profile_link": "https://www.linkedin.com/in/abhinandan-raj-a32315308/",
+        "sent": true,
+        "timestamp": "2026-08-20 09:21:43",
+        "withdrawn": false
     },
     {
         "name": "Ashish Kumar Agrawal",
