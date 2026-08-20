@@ -2507,7 +2507,10 @@
     },
     {
         "name": "Satyam Kumari",
-        "profile_link": "https://www.linkedin.com/in/satyam-kumari-6991bb223/"
+        "profile_link": "https://www.linkedin.com/in/satyam-kumari-6991bb223/",
+        "sent": true,
+        "timestamp": "2026-08-20 03:26:21",
+        "withdrawn": false
     },
     {
         "name": "Adv. Sweta Rani",
