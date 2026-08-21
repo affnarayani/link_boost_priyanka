@@ -2647,7 +2647,10 @@
     },
     {
         "name": "Yashwant Sagar",
-        "profile_link": "https://www.linkedin.com/in/yashwant-sagar-6a2b52303/"
+        "profile_link": "https://www.linkedin.com/in/yashwant-sagar-6a2b52303/",
+        "sent": true,
+        "timestamp": "2026-08-21 04:00:33",
+        "withdrawn": false
     },
     {
         "name": "MANJEET BISHEN",
