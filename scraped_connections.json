@@ -2710,7 +2710,10 @@
     },
     {
         "name": "Rani Vintee",
-        "profile_link": "https://www.linkedin.com/in/rani-vintee-9a1172376/"
+        "profile_link": "https://www.linkedin.com/in/rani-vintee-9a1172376/",
+        "sent": true,
+        "timestamp": "2026-08-21 16:57:01",
+        "withdrawn": false
     },
     {
         "name": "Subhash Kumar Jha",
