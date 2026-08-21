@@ -2738,7 +2738,10 @@
     },
     {
         "name": "NIGARISH MAHDI",
-        "profile_link": "https://www.linkedin.com/in/nigarish-mahdi-361881ba/"
+        "profile_link": "https://www.linkedin.com/in/nigarish-mahdi-361881ba/",
+        "sent": true,
+        "timestamp": "2026-08-21 21:01:31",
+        "withdrawn": false
     },
     {
         "name": "Adv. Prabhakar Jha",
