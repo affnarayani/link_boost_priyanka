@@ -2759,7 +2759,10 @@
     },
     {
         "name": "Anjali Kumari",
-        "profile_link": "https://www.linkedin.com/in/anjali-kumari-4735303b2/"
+        "profile_link": "https://www.linkedin.com/in/anjali-kumari-4735303b2/",
+        "sent": true,
+        "timestamp": "2026-08-22 02:47:42",
+        "withdrawn": false
     },
     {
         "name": "AMAN RANJAN",
