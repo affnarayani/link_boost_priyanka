@@ -2815,7 +2815,10 @@
     },
     {
         "name": "Shabina Talat",
-        "profile_link": "https://www.linkedin.com/in/shabina-talat-b97027311/"
+        "profile_link": "https://www.linkedin.com/in/shabina-talat-b97027311/",
+        "sent": true,
+        "timestamp": "2026-08-22 12:59:52",
+        "withdrawn": false
     },
     {
         "name": "Pankaj Raj Anand",
