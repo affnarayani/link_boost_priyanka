@@ -2948,7 +2948,10 @@
     },
     {
         "name": "Srishti Sinha",
-        "profile_link": "https://www.linkedin.com/in/srishti-sinha-3a9904218/"
+        "profile_link": "https://www.linkedin.com/in/srishti-sinha-3a9904218/",
+        "sent": true,
+        "timestamp": "2026-08-23 15:59:25",
+        "withdrawn": false
     },
     {
         "name": "Sameer Kumar Rajak",
