@@ -3004,7 +3004,10 @@
     },
     {
         "name": "SUKRITI .",
-        "profile_link": "https://www.linkedin.com/in/sukriti-1a5619276/"
+        "profile_link": "https://www.linkedin.com/in/sukriti-1a5619276/",
+        "sent": true,
+        "timestamp": "2026-08-23 20:56:32",
+        "withdrawn": false
     },
     {
         "name": "Rajeev Kumar",
