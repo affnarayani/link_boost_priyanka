@@ -2899,7 +2899,10 @@
     },
     {
         "name": "Anvesha Rishika",
-        "profile_link": "https://www.linkedin.com/in/anvesha-rishika-a45b69210/"
+        "profile_link": "https://www.linkedin.com/in/anvesha-rishika-a45b69210/",
+        "sent": true,
+        "timestamp": "2026-08-23 09:41:42",
+        "withdrawn": false
     },
     {
         "name": "Mukku MALLICK 8",
