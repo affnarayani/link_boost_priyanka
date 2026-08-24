@@ -3109,7 +3109,10 @@
     },
     {
         "name": "Krishan P. Kumar",
-        "profile_link": "https://www.linkedin.com/in/krishan-p-kumar-43316a283/"
+        "profile_link": "https://www.linkedin.com/in/krishan-p-kumar-43316a283/",
+        "sent": true,
+        "timestamp": "2026-08-24 21:07:24",
+        "withdrawn": false
     },
     {
         "name": "Sakshi Kashyap",
