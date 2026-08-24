@@ -3130,7 +3130,10 @@
     },
     {
         "name": "Pallavi Lala",
-        "profile_link": "https://www.linkedin.com/in/pallavi-lala-aa904a1b5/"
+        "profile_link": "https://www.linkedin.com/in/pallavi-lala-aa904a1b5/",
+        "sent": true,
+        "timestamp": "2026-08-24 23:09:31",
+        "withdrawn": false
     },
     {
         "name": "Rohit Kumar",
