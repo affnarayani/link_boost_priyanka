@@ -3102,7 +3102,10 @@
     },
     {
         "name": "Akanksha Kumari",
-        "profile_link": "https://www.linkedin.com/in/akanksha-kumari-aaa369248/"
+        "profile_link": "https://www.linkedin.com/in/akanksha-kumari-aaa369248/",
+        "sent": true,
+        "timestamp": "2026-08-24 20:55:21",
+        "withdrawn": false
     },
     {
         "name": "Krishan P. Kumar",
