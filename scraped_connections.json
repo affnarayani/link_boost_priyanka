@@ -3095,7 +3095,10 @@
     },
     {
         "name": "Raushan Ojha",
-        "profile_link": "https://www.linkedin.com/in/raushan-ojha-451b8a287/"
+        "profile_link": "https://www.linkedin.com/in/raushan-ojha-451b8a287/",
+        "sent": true,
+        "timestamp": "2026-08-24 19:17:57",
+        "withdrawn": false
     },
     {
         "name": "Akanksha Kumari",
