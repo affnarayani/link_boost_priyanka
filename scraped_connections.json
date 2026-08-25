@@ -3256,7 +3256,10 @@
     },
     {
         "name": "Keerti Kumari",
-        "profile_link": "https://www.linkedin.com/in/keerti-kumari-b641943a5/"
+        "profile_link": "https://www.linkedin.com/in/keerti-kumari-b641943a5/",
+        "sent": true,
+        "timestamp": "2026-08-25 22:25:02",
+        "withdrawn": false
     },
     {
         "name": "ASHUTOSH PRASAD JOSHI",
