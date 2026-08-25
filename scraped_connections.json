@@ -3235,7 +3235,10 @@
     },
     {
         "name": "Kumar Gourav",
-        "profile_link": "https://www.linkedin.com/in/kumar-gourav-0a0150202/"
+        "profile_link": "https://www.linkedin.com/in/kumar-gourav-0a0150202/",
+        "sent": true,
+        "timestamp": "2026-08-25 20:02:34",
+        "withdrawn": false
     },
     {
         "name": "Shubham Kumar",
