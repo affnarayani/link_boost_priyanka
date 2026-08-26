@@ -3277,7 +3277,10 @@
     },
     {
         "name": "Rishu Kumar",
-        "profile_link": "https://www.linkedin.com/in/rishu-kumar-4b3751363/"
+        "profile_link": "https://www.linkedin.com/in/rishu-kumar-4b3751363/",
+        "sent": true,
+        "timestamp": "2026-08-26 07:15:08",
+        "withdrawn": false
     },
     {
         "name": "AMAR KUMAR",
