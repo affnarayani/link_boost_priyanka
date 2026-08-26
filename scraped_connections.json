@@ -3298,7 +3298,10 @@
     },
     {
         "name": "Akash Chaturvedi",
-        "profile_link": "https://www.linkedin.com/in/akash-chaturvedi-58bb54297/"
+        "profile_link": "https://www.linkedin.com/in/akash-chaturvedi-58bb54297/",
+        "sent": true,
+        "timestamp": "2026-08-26 09:00:19",
+        "withdrawn": false
     },
     {
         "name": "Ankit Kumar",
