@@ -3368,7 +3368,10 @@
     },
     {
         "name": "Aviral Shashwat",
-        "profile_link": "https://www.linkedin.com/in/aviral-shashwat-910b50371/"
+        "profile_link": "https://www.linkedin.com/in/aviral-shashwat-910b50371/",
+        "sent": true,
+        "timestamp": "2026-08-26 23:45:09",
+        "withdrawn": false
     },
     {
         "name": "Kaushal Kumar Jha",
