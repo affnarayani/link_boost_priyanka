@@ -3305,7 +3305,10 @@
     },
     {
         "name": "Ankit Kumar",
-        "profile_link": "https://www.linkedin.com/in/ankit-kumar-42b7082aa/"
+        "profile_link": "https://www.linkedin.com/in/ankit-kumar-42b7082aa/",
+        "sent": true,
+        "timestamp": "2026-08-26 09:59:19",
+        "withdrawn": false
     },
     {
         "name": "RAJIB RANJAN",
