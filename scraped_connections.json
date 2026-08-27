@@ -3375,7 +3375,10 @@
     },
     {
         "name": "Kaushal Kumar Jha",
-        "profile_link": "https://www.linkedin.com/in/kaushal-kumar-jha-88a96b256/"
+        "profile_link": "https://www.linkedin.com/in/kaushal-kumar-jha-88a96b256/",
+        "sent": true,
+        "timestamp": "2026-08-27 04:08:12",
+        "withdrawn": false
     },
     {
         "name": "Adv. Vigyan Dev Gautam",
