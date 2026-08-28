@@ -3431,7 +3431,10 @@
     },
     {
         "name": "Manisha Khushi",
-        "profile_link": "https://www.linkedin.com/in/manisha-khushi-1543491a7/"
+        "profile_link": "https://www.linkedin.com/in/manisha-khushi-1543491a7/",
+        "sent": true,
+        "timestamp": "2026-08-28 00:52:55",
+        "withdrawn": false
     },
     {
         "name": "Prashant Kashyap",
