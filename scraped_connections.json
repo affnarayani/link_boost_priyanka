@@ -3578,7 +3578,10 @@
     },
     {
         "name": "Ankit Raj",
-        "profile_link": "https://www.linkedin.com/in/ankit-raj-ba463740a/"
+        "profile_link": "https://www.linkedin.com/in/ankit-raj-ba463740a/",
+        "sent": true,
+        "timestamp": "2026-08-29 12:39:03",
+        "withdrawn": false
     },
     {
         "name": "Navin Kumar",
