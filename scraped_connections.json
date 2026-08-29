@@ -3592,7 +3592,10 @@
     },
     {
         "name": "Raju Singh",
-        "profile_link": "https://www.linkedin.com/in/raju-singh-b20630244/"
+        "profile_link": "https://www.linkedin.com/in/raju-singh-b20630244/",
+        "sent": true,
+        "timestamp": "2026-08-29 14:10:21",
+        "withdrawn": false
     },
     {
         "name": "Saurav Kumar",
