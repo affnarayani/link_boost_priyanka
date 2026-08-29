@@ -3662,7 +3662,10 @@
     },
     {
         "name": "Binod Singh",
-        "profile_link": "https://www.linkedin.com/in/binod-singh-2b50b72a1/"
+        "profile_link": "https://www.linkedin.com/in/binod-singh-2b50b72a1/",
+        "sent": true,
+        "timestamp": "2026-08-29 20:59:38",
+        "withdrawn": false
     },
     {
         "name": "SHIVA NANDAN",
