@@ -131,7 +131,11 @@ def run():
         # 7. Extract content
         page.goto(trimmed_url, wait_until="load")
         custom_random_wait(6, 12)
-        post_locator = page.locator('div[class*="update-components-update-v2__commentary"]').first
+        post_locator = (
+            page.locator('div[class*="update-components-update-v2__commentary"]')
+            .or_(page.get_by_test_id("expandable-text-box"))
+            .first
+        )
         post_locator.wait_for(state="visible", timeout=15000)
         post_content = post_locator.inner_text().strip()
         
