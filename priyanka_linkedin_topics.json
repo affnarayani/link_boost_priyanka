@@ -444,7 +444,10 @@
         "posted": true
     },
     {
-        "topic": "AI in judicial decision-making - the ethical and legal concerns"
+        "topic": "AI in judicial decision-making - the ethical and legal concerns",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Builder-buyer disputes outside the housing regulator's jurisdiction"
