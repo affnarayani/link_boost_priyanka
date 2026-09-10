@@ -450,7 +450,10 @@
         "posted": true
     },
     {
-        "topic": "Builder-buyer disputes outside the housing regulator's jurisdiction"
+        "topic": "Builder-buyer disputes outside the housing regulator's jurisdiction",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "UPI fraud - what legal recourse actually works for victims"
