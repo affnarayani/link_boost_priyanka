@@ -43,13 +43,13 @@ def clean_and_format_post(post_data: Dict[str, Any]) -> str:
     p3 = re.sub(r'\n+', '\n', post_data.get("p3", ""))
     conclusion = re.sub(r'\n+', '\n', post_data.get("conclusion", ""))
     
-    combined_body = f"{p1}\n{p2}\n{p3}\n{conclusion}"
-    combined_body = re.sub(r'\n+', '\n', combined_body)
+    combined_body = f"{p1}\n\n{p2}\n\n{p3}\n\n{conclusion}"
+    combined_body = re.sub(r'\n{3,}', '\n\n', combined_body)
     
     keywords = post_data.get("keywords", [])
     hashtags = " ".join([f"#{kw.strip()}" for kw in keywords])
     
-    full_text = f"{combined_body}\n{hashtags}"
+    full_text = f"{combined_body}\n\n{hashtags}"
     return full_text
 
 def upload_to_tmpfiles(screenshot_path):
@@ -60,7 +60,6 @@ def upload_to_tmpfiles(screenshot_path):
         
     if response.status_code == 200:
         res_data = response.json()
-        # Direct view URL banane ke liye '/dl/' replace karte hain
         page_url = res_data["data"]["url"]
         direct_url = page_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
         print(f"👉 DIRECT LINK (Expires in 2 Hours): {direct_url}")
@@ -129,19 +128,45 @@ def run():
         step_wait()
 
         full_post_text = clean_and_format_post(post_data)
-        editor = page.get_by_role('textbox', name='Text editor for creating')
-        editor.focus()
-        editor.press_sequentially(full_post_text, delay=40, timeout=0)
+        
+        # Locators setup
+        editor = (
+            page.get_by_role('textbox', name='Text editor for creating')
+            .or_(page.get_by_test_id('ui-core-tiptap-text-editor-wrapper').get_by_role('paragraph'))
+            .or_(page.locator('p[data-placeholder="Share your thoughts ..."]'))
+        )
+        
+        # ========================================================
+        # EDITOR FOCUS & TYPING FIX FOR TIPTAP/PROSEMIRROR
+        # ========================================================
+        print("[STEP] Focusing editor and clearing cursor state...", flush=True)
+        editor.first.click()
+        time.sleep(1)
+
+        # Clear existing hidden nodes or broken caret positions
+        page.keyboard.press("Control+A")
+        page.keyboard.press("Backspace")
+        time.sleep(1)
+
+        print("[STEP] Typing post content from start...", flush=True)
+        # Global active window par type karne se caret hamesha 1st character se hi likhega
+        page.keyboard.type(full_post_text, delay=25)
         step_wait()
+        # ========================================================
 
         print("[STEP] Uploading media...", flush=True)
         img_file = Path(IMAGE_PATH)
         with page.expect_file_chooser() as fc_info:
-            page.get_by_role('button', name='Add media').click()
+            page.get_by_role('button', name='Media').click()
         fc_info.value.set_files(str(img_file))
         step_wait()
 
-        page.get_by_test_id('interop-shadowdom').get_by_role('button', name='Next').click()
+        next_button = (
+            page.get_by_test_id('interop-shadowdom').get_by_role('button', name='Next')
+            .or_(page.get_by_role('button', name='Next'))
+            .or_(page.get_by_role('button', name='Next', exact=True))
+        )
+        next_button.click()
         step_wait()
 
         print("[STEP] Posting...", flush=True)
@@ -152,7 +177,7 @@ def run():
         with t_file.open("w", encoding="utf-8") as f:
             json.dump(topics_list, f, indent=4, ensure_ascii=False)
 
-        custom_random_wait(15, 30)
+        custom_random_wait(30, 60)
 
     except Exception as e:
         print("[ERROR] Script crashed:", e, flush=True)
