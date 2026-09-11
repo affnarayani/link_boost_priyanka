@@ -166,7 +166,7 @@ def run():
             .or_(page.get_by_role('button', name='Next'))
             .or_(page.get_by_role('button', name='Next', exact=True))
         )
-        next_button.click()
+        next_button.first.click()
         step_wait()
 
         print("[STEP] Posting...", flush=True)
