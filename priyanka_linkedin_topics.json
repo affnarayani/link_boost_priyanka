@@ -462,7 +462,10 @@
         "posted": true
     },
     {
-        "topic": "The process for claiming compensation for industrial pollution"
+        "topic": "The process for claiming compensation for industrial pollution",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "First-time offender leniency in NDPS - myth or reality"
