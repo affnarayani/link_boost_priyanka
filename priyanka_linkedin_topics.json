@@ -474,7 +474,10 @@
         "posted": true
     },
     {
-        "topic": "Criminal conspiracy - why it remains one of the hardest charges to prove"
+        "topic": "Criminal conspiracy - why it remains one of the hardest charges to prove",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Data breach compensation that companies rarely actually pay"
