@@ -480,7 +480,10 @@
         "posted": true
     },
     {
-        "topic": "Data breach compensation that companies rarely actually pay"
+        "topic": "Data breach compensation that companies rarely actually pay",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Government's power to intercept communications - the legal basis"
