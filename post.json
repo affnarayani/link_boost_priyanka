@@ -1,14 +1,14 @@
 {
-    "title": "Data breach compensation that companies rarely actually pay",
-    "p1": "A data breach happens. Millions of records are exposed. Then comes the question: \"Will affected customers get compensation?\"\n\nThe answer surprises many people: a breach does not automatically mean a payout.",
-    "p2": "Many assume companies must pay every person whose data was leaked. In reality, compensation usually depends on proving actual harm, such as financial loss, identity theft, or serious distress caused by the breach.\n\nA leaked email address alone may not lead to a payment.",
-    "p3": "This is why many data breach claims fail or result in small settlements. The hardest part is not proving that data was exposed — it is connecting that exposure to a real impact.\n\nFor companies, the lesson is clear: protecting customer data is not only about avoiding fines. It is about maintaining trust before damage occurs.\n\nFor individuals, keeping records of suspicious activity after a breach can make a major difference if a claim becomes possible.",
-    "conclusion": "Do you think companies should compensate customers automatically after a data breach, or only when people can prove actual harm?",
+    "title": "Government's power to intercept communications - the legal basis",
+    "p1": "Your phone calls and messages are private — but not always beyond government access.\n\nMany people assume interception means authorities can simply monitor anyone at any time. The reality is far more structured.",
+    "p2": "A lesser-known fact: in many legal systems, including India, the power to intercept communications comes from specific laws and procedures, not from unlimited government authority.\n\nInterception is generally allowed only for defined reasons such as national security, public safety, or preventing certain offences, and it must follow prescribed safeguards.",
+    "p3": "The key idea is balance: governments may have tools to protect society, but those tools operate within a legal framework designed to prevent arbitrary surveillance.\n\nKnowing the legal basis matters because privacy rights and state powers often exist in tension. The real question is not only whether interception is possible, but whether the process is lawful, necessary, and accountable.",
+    "conclusion": "Where should the line be drawn between protecting public safety and protecting individual privacy?",
     "keywords": [
-        "DataProtection",
-        "CyberSecurity",
         "PrivacyRights",
-        "DataBreach",
-        "DigitalTrust"
+        "CyberLaw",
+        "LegalAwareness",
+        "DigitalRights",
+        "ConstitutionalLaw"
     ]
 }

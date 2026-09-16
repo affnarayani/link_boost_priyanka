@@ -486,7 +486,10 @@
         "posted": true
     },
     {
-        "topic": "Government's power to intercept communications - the legal basis"
+        "topic": "Government's power to intercept communications - the legal basis",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Compounding of offences - which cases can genuinely be settled"
