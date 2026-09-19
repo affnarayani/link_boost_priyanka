@@ -504,7 +504,10 @@
         "posted": true
     },
     {
-        "topic": "Transfer pricing basics for cross-border transaction disputes"
+        "topic": "Transfer pricing basics for cross-border transaction disputes",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Stop payment vs insufficient funds - does it change the case"
