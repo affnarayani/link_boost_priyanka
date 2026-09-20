@@ -510,7 +510,10 @@
         "posted": true
     },
     {
-        "topic": "Stop payment vs insufficient funds - does it change the case"
+        "topic": "Stop payment vs insufficient funds - does it change the case",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "How courts actually evaluate expert and forensic witness testimony"

@@ -1,14 +1,14 @@
 {
-    "title": "Transfer pricing basics for cross-border transaction disputes",
-    "p1": "A company can follow every contract rule and still face a tax dispute across borders.\n\nWhy? Because different countries may disagree on whether the price charged between related companies is fair.",
-    "p2": "A common misconception is that transfer pricing is only about setting prices. In reality, it is about proving that cross-border transactions happen as if the companies were independent.\n\nA surprising fact: even a small difference in pricing between group companies can create large tax adjustments when transactions involve millions of dollars.",
-    "p3": "Transfer pricing rules ask a simple question: Would an unrelated company agree to the same terms?\n\nFor example, if a parent company sells services to its overseas subsidiary, tax authorities may review whether the service fee reflects a market-based value.\n\nThe practical takeaway: good documentation is often the difference between a smooth review and a costly dispute. Companies should be ready to explain the business reason behind their pricing decisions.",
-    "conclusion": "When companies operate across borders, what factors do you think create the biggest transfer pricing disputes: pricing, documentation, or differences between tax authorities?",
+    "title": "Stop payment vs insufficient funds - does it change the case",
+    "p1": "A cheque bounced. But does the reason behind it actually change the legal consequences?\n\nMany people think a stop payment instruction is treated differently from an account with insufficient funds.",
+    "p2": "The surprising part: in many cheque dishonour cases, both situations can still lead to legal action if the required conditions are met.\n\nA stop payment does not automatically erase liability. The key question is why the cheque was issued and whether the legal requirements for the case are satisfied.",
+    "p3": "An insufficient funds return usually means the bank could not honour the payment due to lack of balance. A stop payment means the account holder instructed the bank not to process the cheque.\n\nThe reason for dishonour may differ, but the outcome depends on the facts, documents, and applicable law—not just the bank's return message.\n\nA practical lesson: never assume a stop payment notice makes a cheque dispute disappear.",
+    "conclusion": "Did you know that a stop payment instruction may still result in a cheque dishonour case? What are your thoughts on treating these two situations similarly?",
     "keywords": [
-        "TransferPricing",
-        "InternationalTax",
-        "CrossBorderBusiness",
-        "TaxDisputes",
-        "GlobalFinance"
+        "ChequeBounce",
+        "BankingLaw",
+        "LegalAwareness",
+        "FinancialLiteracy",
+        "BusinessLaw"
     ]
 }
