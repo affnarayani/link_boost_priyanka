@@ -516,7 +516,10 @@
         "posted": true
     },
     {
-        "topic": "How courts actually evaluate expert and forensic witness testimony"
+        "topic": "How courts actually evaluate expert and forensic witness testimony",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Doxxing on social media - is there a specific law against it"
