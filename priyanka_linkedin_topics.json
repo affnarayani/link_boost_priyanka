@@ -522,7 +522,10 @@
         "posted": true
     },
     {
-        "topic": "Doxxing on social media - is there a specific law against it"
+        "topic": "Doxxing on social media - is there a specific law against it",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Desertion as a divorce ground - how long must it actually last"
