@@ -546,7 +546,10 @@
         "posted": true
     },
     {
-        "topic": "A business owner's legal remedies against defamatory online reviews"
+        "topic": "A business owner's legal remedies against defamatory online reviews",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Succession certificate vs legal heir certificate - the difference clients confuse"
