@@ -290,7 +290,7 @@ def run():
 
         # CHECK LOGIN SUCCESS VIA USER PROFILE BUTTON
         print("[STEP] Checking login success via profile button...", flush=True)
-        profile_button = page.get_by_role('button', name=list(map(lambda x: x.compile(r'.*Free, open'), [__import__('re')]))[0])
+        profile_button = page.get_by_role('button', name=list(map(lambda x: x.compile(r'.*Free, open'), [__import__('re')]))[0]).or_(page.get_by_role('button', name='Open profile menu'))
         
         if profile_button.count() > 0:
             print(f"[OK] LOGIN SUCCESS: Profile button found -> '{profile_button.first.get_attribute('aria-label') or 'User Account'}'", flush=True)
@@ -301,7 +301,7 @@ def run():
         print("[STEP] Locating chat textbox...", flush=True)
         
         # Fallback Strategy for Textbox Locators
-        textbox = page.get_by_role('textbox', name='Chat with ChatGPT')
+        textbox = page.get_by_role('textbox', name='Chat with ChatGPT').or_(page.get_by_role('textbox', name='Ask ChatGPT'))
         
         if textbox.count() == 0:
             print("[INFO] Fallback 1: Searching for 'Ask anything' paragraph inside textbox context...", flush=True)
@@ -399,7 +399,7 @@ def run():
         custom_random_wait(15, 30)
 
         print("[STEP] Locating and clicking send button...", flush=True)
-        send_button = page.get_by_test_id('send-button')
+        send_button = page.get_by_test_id('send-button').or_(page.get_by_role('button', name='Send'))
         send_button.click()
         
         # Initial wait for generation to start properly
@@ -407,7 +407,7 @@ def run():
 
         # STABLE 15-SECOND POLLING LIVE STREAM CHECK
         print("[STEP] Waiting for generated JSON code block to complete writing (15s checks)...", flush=True)
-        code_block_locator = page.locator('#code-block-viewer pre').or_(page.get_by_role('textbox', name='Edit code'))
+        code_block_locator = page.locator('#code-block-viewer pre').or_(page.get_by_role('textbox', name='Edit code')).or_(page.get_by_role('code'))
         
         json_content = None
         for attempt in range(1, 6):
