@@ -52,18 +52,17 @@ def append_to_json(file_path: str, data: Dict[str, str]):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(existing_data, f, ensure_ascii=False, indent=4)
 
-def upload_to_tmpfiles(screenshot_path):
-    url = "https://tmpfiles.org/api/v1/upload"
-    
+def upload_to_onlyfiles(screenshot_path):
+    url = "https://api.onlyfiles.com/v1/upload"
+
     with open(screenshot_path, "rb") as file:
-        response = requests.post(url, files={"file": file})
-        
-    if response.status_code == 200:
-        res_data = response.json()
-        # Direct view URL banane ke liye '/dl/' replace karte hain
-        page_url = res_data["data"]["url"]
-        direct_url = page_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
-        print(f"👉 DIRECT LINK (Expires in 2 Hours): {direct_url}")
+        response = requests.post(url, files={"file": file}, data={"expire": 172800})
+
+    res_data = response.json() if response.content else {}
+    if response.status_code == 200 and res_data.get("status"):
+        # OnlyFiles response se direct file URL nikalte hain
+        direct_url = res_data["data"]["file"]["url"]["full"]
+        print(f"👉 DIRECT LINK (Expires in 48 Hours): {direct_url}")
         return direct_url
     else:
         print(f"[WARNING] Upload Failed: {response.status_code}")
@@ -115,7 +114,7 @@ def run():
                         page.screenshot(path=screenshot_path, full_page=True)
                         print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
                         
-                        upload_to_tmpfiles(screenshot_path)
+                        upload_to_onlyfiles(screenshot_path)
                     except Exception as screenshot_err:
                         print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
                 sys.exit(1)
@@ -195,7 +194,7 @@ def run():
                 page.screenshot(path=screenshot_path, full_page=True)
                 print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
                 
-                upload_to_tmpfiles(screenshot_path)
+                upload_to_onlyfiles(screenshot_path)
             except Exception as screenshot_err:
                 print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
         sys.exit(1)
