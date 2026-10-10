@@ -600,7 +600,10 @@
         "posted": true
     },
     {
-        "topic": "Industrial dispute reference - the process before the labour court"
+        "topic": "Industrial dispute reference - the process before the labour court",
+        "content_generated": true,
+        "image_generated": false,
+        "posted": false
     },
     {
         "topic": "Online obscenity prosecution in the digital age"
