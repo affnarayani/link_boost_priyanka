@@ -1,99 +1,60 @@
-import os
-import sys
-import json
-import time
-import random
+"""Send one LinkedIn connection request per run.
+
+Picks the first profile from ``scraped_connections.json`` that has not been
+contacted yet, sends the invitation, and records the attempt with a timestamp.
+"""
+
+from __future__ import annotations
+
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
 
-from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright
-import requests
-# login.py se session import kiya gaya hai
 from login import login_and_get_context
 
-# ========================
-# CONFIG
-# ========================
-HEADLESS = True
-CONNECTIONS_FILE = "scraped_connections.json"
-
-# ========================
-# DYNAMIC WAITS
-# ========================
-def custom_random_wait(min_sec=15, max_sec=30):
-    seconds = random.uniform(min_sec, max_sec)
-    print(f"[WAIT] Sleeping for {seconds:.2f} seconds...", flush=True)
-    time.sleep(seconds)
-
-# ========================
-# JSON DATA HANDLING
-# ========================
-def load_connections(file_path: Path) -> List[Dict[str, Any]]:
-    if not file_path.exists():
-        print(f"[ERROR] {file_path.name} not found.", flush=True)
-        return []
-    with file_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+from common import config
+from common.browser import (
+    capture_and_upload_error,
+    custom_random_wait,
+    load_connections,
+    save_connections,
+)
+from common.interact import LINKEDIN_UI, LocatorResolutionError
 
 
-def save_connections(file_path: Path, data: List[Dict[str, Any]]):
-    with file_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"[INFO] Saved status updates to {file_path.name}", flush=True)
-
-def upload_to_onlyfiles(screenshot_path):
-    url = "https://api.onlyfiles.com/v1/upload"
-
-    with open(screenshot_path, "rb") as file:
-        response = requests.post(url, files={"file": file}, data={"expire": 172800})
-
-    res_data = response.json() if response.content else {}
-    if response.status_code == 200 and res_data.get("status"):
-        # OnlyFiles response se direct file URL nikalte hain
-        direct_url = res_data["data"]["file"]["url"]["full"]
-        print(f"👉 DIRECT LINK (Expires in 48 Hours): {direct_url}")
-        return direct_url
-    else:
-        print(f"[WARNING] Upload Failed: {response.status_code}")
-        return None
-    
-# ========================
-# MAIN
-# ========================
-def run():
+def run() -> None:
     print("[START] Script started", flush=True)
 
-    connections_path = Path(CONNECTIONS_FILE)
+    connections_path = Path(config.CONNECTIONS_FILE)
     connections = load_connections(connections_path)
 
     if not connections:
-        print("[DONE] No connections data to process.", flush=True)
+        print("[DONE] No connection data to process.", flush=True)
         return
 
-    # SESSION INITIALIZATION VIA login.py
     print("[STEP] Initializing session via login.py...", flush=True)
     try:
-        pw, browser, context, page = login_and_get_context(is_headless=HEADLESS)
-    except Exception as e:
-        print(f"[ERROR] Login session failed: {e}", flush=True)
+        _playwright, browser, _context, page = login_and_get_context(is_headless=config.HEADLESS)
+    except Exception as exc:
+        print(f"[ERROR] Login session failed: {exc}", flush=True)
+        capture_and_upload_error(page=None)
         sys.exit(1)
 
     try:
-        linkedin_url = "https://www.linkedin.com/feed/"
-        print(f"[STEP] Opening LinkedIn Feed: {linkedin_url}", flush=True)
-        page.goto(linkedin_url, wait_until="load")
-        
-        print("[STEP] Verifying login status via 'Me' button...", flush=True)
-        me_button = page.get_by_role('button', name='Me', exact=True)
-        me_button.wait_for(state="visible", timeout=120000)
-        print("[SUCCESS] Login success! 'Me' button detected.\n", flush=True)
+        print(f"[STEP] Opening the LinkedIn feed: {config.LINKEDIN_HOME_URL}", flush=True)
+        page.goto(config.LINKEDIN_HOME_URL, wait_until="load")
 
-        # Loop over profiles in JSON
+        print("[STEP] Verifying login status via the account menu...", flush=True)
+        LINKEDIN_UI.wait_visible(
+            page,
+            "me_account_button",
+            timeout_ms=config.LOGIN_DOM_TIMEOUT_MS,
+            required=True,
+        )
+        print("[SUCCESS] Login succeeded: account menu detected.\n", flush=True)
+
         for index, item in enumerate(connections):
-            # Agar 'sent' key already present hai, toh skip karein
             if "sent" in item:
                 continue
 
@@ -105,79 +66,59 @@ def run():
                 continue
 
             print(f"[PROCESSING] Moving to profile: {name} ({profile_link})", flush=True)
-            
+
             try:
-                # 1. Target Profile Par Jana
                 page.goto(profile_link, wait_until="load")
-                custom_random_wait(3, 6) # Page fully stabilize hone ke liye chota wait
+                custom_random_wait(3, 6)
 
-                # 2. Lazy Column locator inside checking pattern text match structure
-                regex_pattern = re.compile(f"Invite {re.escape(name)}", re.IGNORECASE)
-                connect_button = page.get_by_test_id('lazy-column').get_by_role('link', name=regex_pattern)
-
-                if connect_button.is_visible() or connect_button.count() > 0:
-                    print(f"[ACTION] 'Invite' button found for {name}. Clicking now...", flush=True)
-                    connect_button.click()
-                    
-                    # Connect click karne ke baad wait: 15, 30 random seconds
+                escaped_name = re.escape(str(name))
+                if LINKEDIN_UI.count(page, "profile_invite_link", name=escaped_name) > 0:
+                    print(f"[ACTION] Invite link found for {name}. Clicking now...", flush=True)
+                    LINKEDIN_UI.click(page, "profile_invite_link", required=False, name=escaped_name)
                     custom_random_wait(15, 30)
 
-                    # Confirmation button handle karna
-                    confirm_button = page.get_by_role('button', name='Send without a note', exact=True)
-                    if confirm_button.is_visible() or confirm_button.count() > 0:
-                        print("[ACTION] 'Send without a note' clicked.", flush=True)
-                        confirm_button.click()
-                        
-                        # Note submit confirm click ke baad wait: 15, 30 random seconds
+                    if LINKEDIN_UI.count(page, "connect_send_without_note_button") > 0:
+                        print("[ACTION] Clicking 'Send without a note'...", flush=True)
+                        LINKEDIN_UI.click(
+                            page, "connect_send_without_note_button", required=False
+                        )
                         custom_random_wait(15, 30)
                     else:
-                        print("[INFO] 'Send without a note' button popup missing or auto-sent.", flush=True)
+                        print("[INFO] 'Send without a note' popup missing or request auto-sent.", flush=True)
                 else:
-                    print(f"[INFO] Connect / Invite link button not found for {name}.", flush=True)
+                    print(f"[INFO] Connect / Invite link not found for {name}.", flush=True)
 
-            except Exception as item_error:
+            except LocatorResolutionError as item_error:
                 print(f"[WARNING] Error handling item {name}: {item_error}", flush=True)
 
-            # 3. State JSON append step (Chahe button mile ya na mile)
             item["sent"] = True
             item["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             item["withdrawn"] = False
 
-            # JSON file live save update line
             save_connections(connections_path, connections)
-            print(f"[SUCCESS] Logs updated for {name}. Requesting browser environment teardown exit sequence.\n", flush=True)
-            
-            # Browser exit policy for per execution batch cycle
+            print(
+                f"[SUCCESS] Log updated for {name}. Requesting browser teardown.\n",
+                flush=True,
+            )
             break
 
     except SystemExit:
         raise
-    except Exception as e:
-        print("[ERROR] Script execution broke down due to trace:", e, flush=True)
-        if 'page' in locals() and page:
-            try:
-                screenshot_path = "error_screenshot.png"
-                page.screenshot(path=screenshot_path, full_page=True)
-                print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                
-                upload_to_onlyfiles(screenshot_path)
-            except Exception as screenshot_err:
-                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
+    except Exception as exc:
+        print(f"[ERROR] Script execution failed: {exc}", flush=True)
+        capture_and_upload_error(page)
         sys.exit(1)
 
     finally:
         if browser:
             try:
                 browser.close()
-            except:
+            except Exception:
                 pass
-
-        if pw:
-            try:
-                pw.stop()
-            except:
-                pass
-
+        try:
+            _playwright.stop()
+        except Exception:
+            pass
         print("[DONE] Script execution environment torn down cleanly.", flush=True)
 
 

@@ -2,3 +2,5 @@
 /temp/
 encrypt.py
 .venv/
+__pycache__/
+*.pyc

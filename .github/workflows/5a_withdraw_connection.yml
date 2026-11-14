@@ -3,24 +3,24 @@ name: 5A. Withdraw Connection
 on:
   workflow_dispatch:
   schedule:
-    - cron: '35 22 * * *'
-    - cron: '51 9 * * *'
-    - cron: '17 17 * * *'
-    - cron: '30 5 * * *'
-    - cron: '48 20 * * *'
-    - cron: '24 10 * * *'
-    - cron: '45 21 * * *'
-    - cron: '12 4 * * *'
-    - cron: '27 10 * * *'
-    - cron: '54 8 * * *'
-    - cron: '38 11 * * *'
-    - cron: '27 16 * * *'
-    - cron: '18 16 * * *'
-    - cron: '33 17 * * *'
-    - cron: '36 14 * * *'
-    - cron: '32 6 * * *'
-    - cron: '13 11 * * *'
-    - cron: '1 10 * * *'
+    - cron: '45 5 * * *'
+    - cron: '3 12 * * *'
+    - cron: '57 18 * * *'
+    - cron: '22 8 * * *'
+    - cron: '30 16 * * *'
+    - cron: '52 13 * * *'
+    - cron: '53 16 * * *'
+    - cron: '52 9 * * *'
+    - cron: '42 15 * * *'
+    - cron: '21 10 * * *'
+    - cron: '3 11 * * *'
+    - cron: '29 10 * * *'
+    - cron: '8 7 * * *'
+    - cron: '48 10 * * *'
+    - cron: '59 10 * * *'
+    - cron: '16 4 * * *'
+    - cron: '15 4 * * *'
+    - cron: '47 11 * * *'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -46,12 +46,12 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install playwright playwright-stealth cryptography python-dotenv requests
+          pip install -r requirements.txt
           playwright install chromium --with-deps
 
       - name: Install and Start Cloudflare WARP (TUN Global Mode)
         run: |
-          # 1. Repository aur GPG Key set karein
+          # 1. Add the repository and GPG key
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
           
@@ -65,21 +65,21 @@ jobs:
           # 4. Register (New CLI Syntax compatible)
           warp-cli --accept-tos registration new || warp-cli registration new
           
-          # 5. STRICT FIX: Mode ko PROXY se badal kar TUN (Standard VPN) karein
-          # Yeh pure GitHub runner ka internet traffic WARP se routing kar dega
+          # 5. Switch the mode from PROXY to TUN (standard VPN)
+          # This routes all GitHub runner internet traffic through WARP
           warp-cli --accept-tos mode warp || warp-cli mode warp
           
           # 6. Connect
           warp-cli --accept-tos connect || warp-cli connect
           sleep 5
           
-          # 7. Verify ki pure system ka IP change hua ya nahi
+          # 7. Verify that the whole system IP changed
           curl https://cloudflare.com/cdn-cgi/trace
 
       - name: Execute Automation Script
         env:
           DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
-          IMGBBB_API_KEY: ${{ secrets.IMGBBB_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python withdraw_connection.py
 
@@ -88,17 +88,33 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: error-screenshot
-          path: error_screenshot.png
+          path: error/error_screenshot.png
           if-no-files-found: ignore
 
       - name: Commit and Push updated connections state
         if: success()
         run: |
-          git add scraped_connections.json
-          if ! git diff --staged --quiet; then
-            git checkout -- .
-            git clean -fd
-            git commit -m "chore: update state [skip ci]"
-            git pull origin main --rebase
-            git push origin main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add json/scraped_connections.json
+          # Self-healing locators: persist recorded fixes and auto-corrected .txt fallbacks
+          [ -f locators/changed_locators.json ] && git add locators/changed_locators.json
+          [ -f locators/linkedin_locators.txt ] && git add locators/linkedin_locators.txt
+          [ -f locators/chatgpt_locators.txt ] && git add locators/chatgpt_locators.txt
+          
+          if git diff --staged --quiet; then
+            echo "[INFO] No changes detected in pipeline state files. Skipping push."
+          else
+            echo "[OK] Changes detected. Committing dynamic state..."
+            git commit -m "Automated: Fresh target post state updated [skip ci]"
+            
+            # Temporarily hide the remaining unstaged changes
+            git stash --include-untracked
+            
+            # Pull the remote changes
+            git pull --rebase origin ${GITHUB_REF_NAME}
+            
+            # Perform a clean push
+            git push origin ${GITHUB_REF_NAME}
           fi

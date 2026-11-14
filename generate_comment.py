@@ -1,477 +1,258 @@
-import os
-import sys
+"""Generate a LinkedIn comment for the target post using ChatGPT."""
+
+from __future__ import annotations
+
 import json
-import time
-import base64
-import random
-import requests
-from pathlib import Path
-from typing import List, Dict, Any
+import sys
+from typing import Optional
 
-from dotenv import load_dotenv
+from playwright.sync_api import Page
 
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.exceptions import InvalidTag
-
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+from common import config
+from common.browser import (
+    capture_and_upload_error,
+    custom_random_wait,
+    read_json,
+    write_json,
+)
+from common.chatgpt import launch_chatgpt_session, teardown, verify_chatgpt_session
+from common.interact import CHATGPT_UI, LocatorResolutionError
 
 
-# =========================
-# CONFIG
-# =========================
-HEADLESS = True
+def _wait_for_code_block(page: Page, attempts: int = 5, cycles: int = 15) -> Optional[str]:
+    """Poll the ChatGPT code block until the JSON payload stops growing."""
+    print("[STEP] Waiting for the generated JSON code block to complete...", flush=True)
 
-COOKIES_DIR = Path("chatgpt_cookies")  # Path chatgpt_cookies set kiya gaya hai
-encrypted_files = list(COOKIES_DIR.glob("*.encrypted"))
+    locator = CHATGPT_UI.resolve(page, "chatgpt_response_code_block", timeout_ms=config.CHATGPT_RESPONSE_TIMEOUT_MS)
 
-if not encrypted_files:
-    raise RuntimeError("❌ No .encrypted cookie files found in 'chatgpt_cookies/' folder")
+    if locator is None:
+        print("[FALLBACK] Code block not found in the DOM; asking Gemini Vision to read it.", flush=True)
+        text = CHATGPT_UI.vision.read_text(page, CHATGPT_UI.describe("chatgpt_response_code_block"))
+        return text if text and text.strip().endswith("}") else None
 
-CHATGPT_COOKIES_FILE = random.choice(encrypted_files)
-print(f"[OK] Randomly selected cookie file: {CHATGPT_COOKIES_FILE.name}", flush=True)
+    json_content = None
+    for attempt in range(1, attempts + 1):
+        print(f"[STEP] Checking the code block (attempt {attempt}/{attempts})...", flush=True)
 
-PBKDF2_ITERATIONS = 200_000
+        last_length = 0
+        for cycle in range(cycles):
+            custom_random_wait(15, 30)
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            try:
+                current_text = locator.first.inner_text().strip()
+            except Exception:
+                break
 
-STATUS_FILE = Path("comment_status.json")
-POST_DATA_FILE = Path("post_to_comment.json")
+            current_length = len(current_text)
+            print(
+                f"[STREAM INFO] Cycle {cycle + 1}: previous length = {last_length}, "
+                f"current length = {current_length}",
+                flush=True,
+            )
 
+            if current_length > 0 and current_length == last_length:
+                if current_text.endswith("}"):
+                    json_content = current_text
+                    print("[OK] Content generation is fully finished.", flush=True)
+                    break
+                print("[WARNING] Generation paused but the closing '}' is missing.", flush=True)
 
-# =========================
-# ENV
-# =========================
-load_dotenv()
+            last_length = current_length
 
-DECRYPT_KEY = os.getenv("DECRYPT_KEY")
+        if json_content:
+            break
 
-if not DECRYPT_KEY:
-    raise RuntimeError("DECRYPT_KEY missing")
+        if attempt < attempts:
+            print("[WARNING] Code block not fully compiled yet. Waiting for the next window...", flush=True)
+            custom_random_wait(30, 60)
 
-
-# =========================
-# RANDOM WAIT
-# =========================
-def custom_random_wait(min_sec, max_sec):
-    seconds = random.uniform(min_sec, max_sec)
-    print(f"[WAIT] Sleeping for {seconds:.2f} seconds...", flush=True)
-    time.sleep(seconds)
-
-
-# =========================
-# CRYPTO
-# =========================
-def _derive_key(password: bytes, salt: bytes) -> bytes:
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=PBKDF2_ITERATIONS,
-    )
-    return kdf.derive(password)
+    return json_content
 
 
-def _decrypt_payload(payload: Dict[str, Any], password: str) -> bytes:
-    salt = base64.b64decode(payload["s"])
-    nonce = base64.b64decode(payload["n"])
-    ciphertext = base64.b64decode(payload["ct"])
+BUILD_PROMPT = (
+    "IMPORTANT: Your entire response must be wrapped inside a single ```json code block. "
+    "Do not output any text, explanation, markdown, commentary, or notes before or after the code block.\n\n"
+    "Read the following LinkedIn post carefully:\n"
+    '"""\n{post_content}\n"""\n\n'
+    "Your task is to write a thoughtful, professional, and discussion-worthy LinkedIn comment.\n\n"
+    "PRIMARY OBJECTIVE:\n"
+    "Write the kind of comment that a knowledgeable industry peer would naturally leave after reading the post.\n"
+    "The comment should contribute something useful to the conversation rather than merely reacting to it.\n\n"
+    "THE GOAL IS NOT TO:\n"
+    "- Praise the author\n"
+    "- Compliment the post\n"
+    "- Summarize the post\n"
+    "- Repeat the author's main point\n"
+    "- Sound like a corporate chatbot\n"
+    "- Sound like an AI assistant\n\n"
+    "THE GOAL IS TO:\n"
+    "- Advance the discussion\n"
+    "- Add a practical real-world consideration\n"
+    "- Introduce a nuance, tradeoff, edge case, or second-order implication\n"
+    "- Surface an observation that practitioners in the field would recognize\n"
+    "- Provide a perspective that was not explicitly stated in the original post\n\n"
+    "SILENT ANALYSIS:\n"
+    "Before writing the comment:\n"
+    "1. Identify the core idea of the post.\n"
+    "2. Identify a practical implication, overlooked consideration, edge case, tradeoff, or downstream consequence.\n"
+    "3. Build the comment around that insight.\n"
+    "4. Prefer practitioner-level observations over theoretical commentary.\n\n"
+    "TONE:\n"
+    "Write like an experienced professional sharing one useful thought while scrolling LinkedIn.\n"
+    "Sound intelligent, observant, practical, conversational, and natural.\n"
+    "Write as a reaction, not as a mini-article.\n"
+    "If someone got a certification, appraisal, promotion or got hired. Simply praise him/her and nothing more.\n"
+    "The comment should feel spontaneous rather than carefully crafted.\n\n"
+    "DO NOT SOUND LIKE:\n"
+    "- A motivational influencer\n"
+    "- A life coach\n"
+    "- A marketer\n"
+    "- A thought-leadership cliché generator\n"
+    "- An academic paper\n\n"
+    "HUMANNESS RULE:\n"
+    "The comment should feel like it was written by a busy but sharp professional who had one genuinely useful thought while reading the post.\n"
+    "No artificial profundity.\n"
+    "No exaggerated wisdom.\n"
+    "No performative intelligence.\n\n"
+    "LENGTH:\n"
+    "Preferred range: 80-220 characters including spaces.\n"
+    "Be concise.\n\n"
+    "FORMAT RULES:\n"
+    "- Single continuous line\n"
+    "- No newline characters\n"
+    "- No emojis\n"
+    "- No hashtags\n"
+    "- No markdown\n"
+    "- No greetings\n"
+    "- No sign-offs\n\n"
+    "AVOID COMMON AI PHRASES:\n"
+    "- This resonates deeply\n"
+    "- Insightful share\n"
+    "- Thanks for sharing\n"
+    "- Spot on\n"
+    "- Couldn't agree more\n"
+    "- Well said\n"
+    "- Great reminder\n"
+    "- Valuable perspective\n"
+    "- You've captured a crucial point\n"
+    "- Or similar generic praise\n\n"
+    "QUALITY CHECK:\n"
+    "The comment should make an informed reader think:\n"
+    "'That's a good point—I hadn't considered that angle.'\n\n"
+    "OUTPUT FORMAT — STRICTLY INSIDE A SINGLE JSON CODE BLOCK:\n"
+    "{{\n"
+    '  "comment": "Your direct single-line LinkedIn comment here"\n'
+    "}}\n"
+)
 
-    key = _derive_key(password.encode("utf-8"), salt)
-    aesgcm = AESGCM(key)
 
-    try:
-        return aesgcm.decrypt(nonce, ciphertext, None)
-    except InvalidTag:
-        raise RuntimeError("❌ Decryption failed (InvalidTag)")
-
-
-def load_cookies(file_path: Path) -> List[Dict[str, Any]]:
-    print("[STEP] Loading cookies...", flush=True)
-
-    with file_path.open("r", encoding="utf-8") as f:
-        payload = json.load(f)
-
-    plaintext = _decrypt_payload(payload, DECRYPT_KEY)
-    cookies = json.loads(plaintext.decode("utf-8"))
-
-    # normalize SameSite and PartitionKey
-    for c in cookies:
-        if "partitionKey" in c and isinstance(c["partitionKey"], dict):
-            if "topLevelSite" in c["partitionKey"]:
-                c["partitionKey"] = str(c["partitionKey"]["topLevelSite"])
-            else:
-                del c["partitionKey"]
-
-        if "sameSite" in c:
-            val = str(c["sameSite"]).lower()
-
-            if val in ["no_restriction", "none", "unspecified", "null"]:
-                c["sameSite"] = "None"
-            elif val == "lax":
-                c["sameSite"] = "Lax"
-            elif val == "strict":
-                c["sameSite"] = "Strict"
-            else:
-                c["sameSite"] = "Lax"
-
-    print("[OK] Cookies loaded", flush=True)
-    return cookies
-
-def upload_to_onlyfiles(screenshot_path):
-    url = "https://api.onlyfiles.com/v1/upload"
-
-    with open(screenshot_path, "rb") as file:
-        response = requests.post(url, files={"file": file}, data={"expire": 172800})
-
-    res_data = response.json() if response.content else {}
-    if response.status_code == 200 and res_data.get("status"):
-        # OnlyFiles response se direct file URL nikalte hain
-        direct_url = res_data["data"]["file"]["url"]["full"]
-        print(f"👉 DIRECT LINK (Expires in 48 Hours): {direct_url}")
-        return direct_url
-    else:
-        print(f"[WARNING] Upload Failed: {response.status_code}")
-        return None
-
-# =========================
-# MAIN
-# =========================
-def run():
+def run() -> None:
     print("[START] Script started", flush=True)
 
-    # ============================================
-    # STATUS CHECK: comment_status.json
-    # ============================================
-    if not STATUS_FILE.exists():
-        print(f"[ERROR] {STATUS_FILE.name} file nahi mila. Exiting...", flush=True)
-        sys.exit(0)
-        
-    try:
-        with STATUS_FILE.open("r", encoding="utf-8") as f:
-            status_data = json.load(f)
-    except Exception as e:
-        print(f"[ERROR] {STATUS_FILE.name} parse nahi ho paya: {e}. Exiting...", flush=True)
-        sys.exit(0)
-
-    # Condition Check matching your exact json structure requirement
-    if (status_data.get("post_to_comment_found") is True and 
-        status_data.get("comment_generated") is False and 
-        status_data.get("comment_posted") is False):
-        print("[OK] Status check passed. Proceeding with comment generation...", flush=True)
-    else:
-        print(f"[INFO] Status match nahi hua {status_data}. Conditions failed, exiting...", flush=True)
-        sys.exit(0)
-
-    # ============================================
-    # READ CONTENT FROM post_to_comment.json
-    # ============================================
-    if not POST_DATA_FILE.exists():
-        print(f"[ERROR] {POST_DATA_FILE.name} nahi mili jahan se content read karna tha. Exiting...", flush=True)
+    # 1. Pipeline gate
+    if not config.STATUS_FILE.exists():
+        print(f"[ERROR] {config.STATUS_FILE.name} not found. Exiting...", flush=True)
         sys.exit(0)
 
     try:
-        with POST_DATA_FILE.open("r", encoding="utf-8") as f:
-            post_data = json.load(f)
-        post_content = post_data.get("content", "").strip()
-    except Exception as e:
-        print(f"[ERROR] {POST_DATA_FILE.name} read/parse karne me dikkat aayi: {e}", flush=True)
+        status_data = read_json(config.STATUS_FILE, default={}) or {}
+    except Exception as exc:
+        print(f"[ERROR] Could not parse {config.STATUS_FILE.name}: {exc}. Exiting...", flush=True)
+        sys.exit(0)
+
+    if not (
+        status_data.get("post_to_comment_found") is True
+        and status_data.get("comment_generated") is False
+        and status_data.get("comment_posted") is False
+    ):
+        print(f"[INFO] Status requirements not met ({status_data}). Exiting...", flush=True)
+        sys.exit(0)
+
+    # 2. Read the post content
+    if not config.POST_DATA_FILE.exists():
+        print(f"[ERROR] {config.POST_DATA_FILE.name} not found. Exiting...", flush=True)
+        sys.exit(0)
+
+    try:
+        post_data = read_json(config.POST_DATA_FILE, default={}) or {}
+        post_content = str(post_data.get("content", "")).strip()
+    except Exception as exc:
+        print(f"[ERROR] Could not read {config.POST_DATA_FILE.name}: {exc}", flush=True)
         sys.exit(0)
 
     if not post_content:
-        print(f"[ERROR] {POST_DATA_FILE.name} ke andar 'content' khali mila. Exiting...", flush=True)
+        print(f"[ERROR] 'content' is empty in {config.POST_DATA_FILE.name}. Exiting...", flush=True)
         sys.exit(0)
 
-    cookies = load_cookies(Path(CHATGPT_COOKIES_FILE))
-    print(f"[OK] Total cookies loaded: {len(cookies)}", flush=True)
-
-    # =========================
-    # STEALTH SETUP & LOGIN
-    # =========================
-    stealth = Stealth()
-    pw_cm = stealth.use_sync(sync_playwright())
-    pw = pw_cm.__enter__()
-
+    playwright_cm = None
     browser = None
+    page = None
     try:
-        browser = pw.chromium.launch(
-            headless=HEADLESS,
-            args=[
-                "--start-maximized",
-                "--disable-blink-features=AutomationControlled"
-            ]
-        )
-
-        context = browser.new_context(
-            no_viewport=True,
-            user_agent=USER_AGENT
-        )
-
-        context.grant_permissions(["clipboard-read", "clipboard-write"])
-        print("[STEP] Adding cookies to browser context...", flush=True)
-        context.add_cookies(cookies)
-
-        page = context.new_page()
-        print("[OK] Cookies added successfully", flush=True)
-
-        print("[STEP] Opening ChatGPT Main URL...", flush=True)
-        page.goto("https://chatgpt.com/", wait_until="load")
-        print("[OK] URL opened successfully (Logged In)", flush=True)
-
+        playwright_cm, _playwright, browser, _context, page = launch_chatgpt_session()
         custom_random_wait(30, 60)
+        verify_chatgpt_session(page)
 
-        # CHECK LOGIN SUCCESS VIA USER PROFILE BUTTON
-        print("[STEP] Checking login success via profile button...", flush=True)
-        profile_button = page.get_by_role('button', name=list(map(lambda x: x.compile(r'.*Free, open'), [__import__('re')]))[0]).or_(page.get_by_role('button', name='Open profile menu'))
-        
-        if profile_button.count() > 0:
-            print(f"[OK] LOGIN SUCCESS: Profile button found -> '{profile_button.first.get_attribute('aria-label') or 'User Account'}'", flush=True)
-        else:
-            print("[WARNING] Profile button not detected directly, proceeding with caution...", flush=True)
+        print("[STEP] Locating the chat textbox...", flush=True)
+        CHATGPT_UI.click(page, "chatgpt_chat_input")
 
-        # AUTOMATION FLOW
-        print("[STEP] Locating chat textbox...", flush=True)
-        textbox = page.get_by_role('textbox', name='Chat with ChatGPT').or_(page.get_by_role('textbox', name='Ask ChatGPT'))
-        
-        if textbox.count() == 0:
-            textbox = page.locator('div[contenteditable="true"]').filter(has=page.locator('p', has_text='Ask anything')).first
-            
-        if textbox.count() == 0:
-            textbox = page.locator('#prompt-textarea')
+        prompt = BUILD_PROMPT.format(post_content=post_content)
 
-        if textbox.count() > 0:
-            textbox.first.click()
-            print("[OK] Textbox located and clicked successfully.", flush=True)
-        else:
-            raise RuntimeError("❌ Textbox locator load nahi ho paya (All strategies failed).")
-            
+        print("[STEP] Entering the prompt into the textbox...", flush=True)
+        CHATGPT_UI.fill(page, "chatgpt_chat_input", prompt)
         custom_random_wait(15, 30)
 
-        # =========================================================
-        # LINKEDIN OPTIMIZED PROMPT 
-        # =========================================================
-        prompt = (
-            f"IMPORTANT: Your entire response must be wrapped inside a single ```json code block. "
-            f"Do not output any text, explanation, markdown, commentary, or notes before or after the code block.\n\n"
-
-            f"Read the following LinkedIn post carefully:\n"
-            f"\"\"\"\n{post_content}\n\"\"\"\n\n"
-
-            f"Your task is to write a thoughtful, professional, and discussion-worthy LinkedIn comment.\n\n"
-
-            f"PRIMARY OBJECTIVE:\n"
-            f"Write the kind of comment that a knowledgeable industry peer would naturally leave after reading the post.\n"
-            f"The comment should contribute something useful to the conversation rather than merely reacting to it.\n\n"
-
-            f"THE GOAL IS NOT TO:\n"
-            f"- Praise the author\n"
-            f"- Compliment the post\n"
-            f"- Summarize the post\n"
-            f"- Repeat the author's main point\n"
-            f"- Sound like a corporate chatbot\n"
-            f"- Sound like an AI assistant\n\n"
-
-            f"THE GOAL IS TO:\n"
-            f"- Advance the discussion\n"
-            f"- Add a practical real-world consideration\n"
-            f"- Introduce a nuance, tradeoff, edge case, or second-order implication\n"
-            f"- Surface an observation that practitioners in the field would recognize\n"
-            f"- Provide a perspective that was not explicitly stated in the original post\n\n"
-
-            f"SILENT ANALYSIS:\n"
-            f"Before writing the comment:\n"
-            f"1. Identify the core idea of the post.\n"
-            f"2. Identify a practical implication, overlooked consideration, edge case, tradeoff, or downstream consequence.\n"
-            f"3. Build the comment around that insight.\n"
-            f"4. Prefer practitioner-level observations over theoretical commentary.\n\n"
-
-            f"TONE:\n"
-            f"Write like an experienced professional sharing one useful thought while scrolling LinkedIn.\n"
-            f"Sound intelligent, observant, practical, conversational, and natural.\n"
-            f"Write as a reaction, not as a mini-article.\n"
-            f"If someone got a certification, appraisal, promotion or got hired. Simply praise him/her and nothing more.\n"
-            f"The comment should feel spontaneous rather than carefully crafted.\n\n"
-
-            f"DO NOT SOUND LIKE:\n"
-            f"- A motivational influencer\n"
-            f"- A life coach\n"
-            f"- A marketer\n"
-            f"- A thought-leadership cliché generator\n"
-            f"- An academic paper\n\n"
-
-            f"HUMANNESS RULE:\n"
-            f"The comment should feel like it was written by a busy but sharp professional who had one genuinely useful thought while reading the post.\n"
-            f"No artificial profundity.\n"
-            f"No exaggerated wisdom.\n"
-            f"No performative intelligence.\n\n"
-
-            f"LENGTH:\n"
-            f"Preferred range: 80-220 characters including spaces.\n"
-            f"Be concise.\n\n"
-
-            f"FORMAT RULES:\n"
-            f"- Single continuous line\n"
-            f"- No newline characters\n"
-            f"- No emojis\n"
-            f"- No hashtags\n"
-            f"- No markdown\n"
-            f"- No greetings\n"
-            f"- No sign-offs\n\n"
-
-            f"AVOID COMMON AI PHRASES:\n"
-            f"- This resonates deeply\n"
-            f"- Insightful share\n"
-            f"- Thanks for sharing\n"
-            f"- Spot on\n"
-            f"- Couldn't agree more\n"
-            f"- Well said\n"
-            f"- Great reminder\n"
-            f"- Valuable perspective\n"
-            f"- You've captured a crucial point\n"
-            f"- Or similar generic praise\n\n"
-
-            f"QUALITY CHECK:\n"
-            f"The comment should make an informed reader think:\n"
-            f"'That's a good point—I hadn't considered that angle.'\n\n"
-
-            f"OUTPUT FORMAT — STRICTLY INSIDE A SINGLE JSON CODE BLOCK:\n"
-            f"{{\n"
-            f'  "comment": "Your direct single-line LinkedIn comment here"\n'
-            f"}}\n"
-        )
-
-        print("[STEP] Entering prompt into textbox...", flush=True)
-        textbox.first.fill(prompt)
-        custom_random_wait(15, 30)
-
-        print("[STEP] Locating and clicking send button...", flush=True)
-        send_button = page.get_by_test_id('send-button').or_(page.get_by_role('button', name='Send'))
-        send_button.click()
-        
+        print("[STEP] Locating and clicking the send button...", flush=True)
+        CHATGPT_UI.click(page, "chatgpt_send_button")
         custom_random_wait(30, 60)
 
-        # STABLE Live Stream Check
-        print("[STEP] Waiting for generated JSON code block to complete writing...", flush=True)
-        code_block_locator = page.locator('#code-block-viewer pre').or_(page.get_by_role('textbox', name='Edit code')).or_(page.get_by_role('code'))
-        
-        json_content = None
-        for attempt in range(1, 6):
-            print(f"[STEP] Checking code block locator (Attempt {attempt}/5)...", flush=True)
-            
-            if code_block_locator.count() > 0:
-                print("[OK] Code block visible, parsing text...", flush=True)
-                
-                last_length = 0
-                max_check_cycles = 15
-                
-                for cycle in range(max_check_cycles):
-                    time.sleep(15)
-                    
-                    current_text = code_block_locator.first.inner_text().strip()
-                    current_length = len(current_text)
-                    
-                    print(f"[STREAM INFO] Cycle {cycle+1}: Previous Length = {last_length}, Current Length = {current_length}", flush=True)
-                    
-                    if current_length > 0 and current_length == last_length:
-                        if current_text.endswith("}"):
-                            json_content = current_text
-                            print("[OK] Content generation is fully finished.", flush=True)
-                            break
-                        else:
-                            print("[WARNING] Generation paused but closing '}' is missing.", flush=True)
-                        
-                    last_length = current_length
-                
-                if json_content:
-                    break
-            
-            if attempt < 5:
-                print(f"[WARNING] Code block not fully compiled yet. Waiting...", flush=True)
-                custom_random_wait(30, 60)
-            else:
-                print("❌ Max retries reached. Streaming failed. Exiting...", flush=True)
-                try: browser.close()
-                except: pass
-                sys.exit(1)
+        json_content = _wait_for_code_block(page)
 
-        # JSON processing, validation and Updates
-        if json_content:
-            try:
-                print("[STEP] Parsing content as JSON...", flush=True)
-                if json_content.startswith("```json"):
-                    json_content = json_content.split("```json", 1)[1]
-                if json_content.endswith("```"):
-                    json_content = json_content.rsplit("```", 1)[0]
-                
-                parsed_json = json.loads(json_content.strip())
-                generated_comment_text = parsed_json.get("comment", "").strip()
-
-                # Clean stray newlines
-                generated_comment_text = generated_comment_text.replace("\n", " ").replace("\r", "")
-                
-                # =========================================================
-                # APPEND COMMENT TO post_to_comment.json
-                # =========================================================
-                print(f"[STEP] Appending comment key to {POST_DATA_FILE.name}...", flush=True)
-                post_data["comment"] = generated_comment_text
-                
-                with POST_DATA_FILE.open("w", encoding="utf-8") as f:
-                    json.dump(post_data, f, indent=4, ensure_ascii=False)
-                print(f"[OK] {POST_DATA_FILE.name} updated successfully with comment data.", flush=True)
-
-                # =========================================================
-                # UPDATE STATUS FILE ON SUCCESS
-                # =========================================================
-                print(f"[STEP] Updating {STATUS_FILE.name}...", flush=True)
-                status_data["comment_generated"] = True
-                
-                with STATUS_FILE.open("w", encoding="utf-8") as f:
-                    json.dump(status_data, f, indent=4, ensure_ascii=False)
-                print(f"[OK] {STATUS_FILE.name} updated: comment_generated set to true.", flush=True)
-                
-            except json.JSONDecodeError as je:
-                print(f"[ERROR] Content JSON parse error: {je}. Exiting...", flush=True)
-                try: browser.close()
-                except: pass
-                sys.exit(1)
-        else:
+        if not json_content:
             print("[ERROR] No data fetched from ChatGPT. Exiting...", flush=True)
-            try: browser.close()
-            except: pass
+            capture_and_upload_error(page)
             sys.exit(1)
 
-        print("[STEP] Performing final wait before closure...", flush=True)
+        try:
+            print("[STEP] Parsing the content as JSON...", flush=True)
+            if json_content.startswith("```json"):
+                json_content = json_content.split("```json", 1)[1]
+            if json_content.endswith("```"):
+                json_content = json_content.rsplit("```", 1)[0]
+
+            parsed_json = json.loads(json_content.strip())
+            generated_comment_text = str(parsed_json.get("comment", "")).strip()
+            generated_comment_text = generated_comment_text.replace("\n", " ").replace("\r", "")
+
+            print(f"[STEP] Appending the 'comment' key to {config.POST_DATA_FILE.name}...", flush=True)
+            post_data["comment"] = generated_comment_text
+            write_json(config.POST_DATA_FILE, post_data)
+            print(f"[OK] {config.POST_DATA_FILE.name} updated with the comment data.", flush=True)
+
+            print(f"[STEP] Updating {config.STATUS_FILE.name}...", flush=True)
+            status_data["comment_generated"] = True
+            write_json(config.STATUS_FILE, status_data)
+            print(f"[OK] {config.STATUS_FILE.name} updated: comment_generated set to true.", flush=True)
+
+        except json.JSONDecodeError as exc:
+            print(f"[ERROR] Content JSON parse error: {exc}. Exiting...", flush=True)
+            capture_and_upload_error(page)
+            sys.exit(1)
+
+        print("[STEP] Performing a final wait before closure...", flush=True)
         custom_random_wait(15, 30)
 
     except SystemExit:
         raise
-    except Exception as e:
-        print("[ERROR]", e, flush=True)
-        if 'page' in locals() and page:
-            try:
-                screenshot_path = "error_screenshot.png"
-                page.screenshot(path=screenshot_path, full_page=True)
-                print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                
-                upload_to_onlyfiles(screenshot_path)
-            except Exception as screenshot_err:
-                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
-        if browser:
-            try: browser.close()
-            except: pass
+    except LocatorResolutionError as exc:
+        print(f"[ERROR] {exc}", flush=True)
+        capture_and_upload_error(page)
         sys.exit(1)
-
+    except Exception as exc:
+        print(f"[ERROR] {exc}", flush=True)
+        capture_and_upload_error(page)
+        sys.exit(1)
     finally:
-        if browser:
-            try: browser.close()
-            except: pass
-
-        try: pw_cm.__exit__(None, None, None)
-        except: pass
-
-        print("[DONE] Script finished cleanly", flush=True)
+        teardown(playwright_cm, browser)
 
 
 if __name__ == "__main__":

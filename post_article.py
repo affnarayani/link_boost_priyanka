@@ -1,199 +1,148 @@
-import os
-import sys
-import json
-import time
-import random
-import re
-import requests
-from pathlib import Path
-from typing import List, Dict, Any
-from dotenv import load_dotenv
+"""Publish the generated LinkedIn post (text plus image) from ``post.json``."""
 
-from playwright.sync_api import sync_playwright
-# login.py se session import kiya gaya hai
+from __future__ import annotations
+
+import re
+import sys
+import time
+from pathlib import Path
+from typing import Any, Dict
+
 from login import login_and_get_context
 
-# =========================
-# CONFIG
-# =========================
-HEADLESS = True
-TOPICS_FILE = "priyanka_linkedin_topics.json"
-POST_FILE = "post.json"
-IMAGE_PATH = "image/image.png"
+from common import config
+from common.browser import (
+    capture_and_upload_error,
+    custom_random_wait,
+    read_json,
+    step_wait,
+    write_json,
+)
+from common.interact import LINKEDIN_UI, LocatorResolutionError
 
-# =========================
-# DYNAMIC WAITS
-# =========================
-def custom_random_wait(min_sec=15, max_sec=30):
-    seconds = random.uniform(min_sec, max_sec)
-    print(f"[WAIT] Sleeping for {seconds:.2f} seconds...", flush=True)
-    time.sleep(seconds)
 
-def step_wait():
-    seconds = random.uniform(6, 12)
-    print(f"[WAIT] Dynamic step delay: sleeping for {seconds:.2f} seconds...", flush=True)
-    time.sleep(seconds)
-
-# =========================
-# TEXT PARSING HELPER
-# =========================
 def clean_and_format_post(post_data: Dict[str, Any]) -> str:
-    p1 = re.sub(r'\n+', '\n', post_data.get("p1", ""))
-    p2 = re.sub(r'\n+', '\n', post_data.get("p2", ""))
-    p3 = re.sub(r'\n+', '\n', post_data.get("p3", ""))
-    conclusion = re.sub(r'\n+', '\n', post_data.get("conclusion", ""))
-    
-    combined_body = f"{p1}\n\n{p2}\n\n{p3}\n\n{conclusion}"
-    combined_body = re.sub(r'\n{3,}', '\n\n', combined_body)
-    
-    keywords = post_data.get("keywords", [])
-    hashtags = " ".join([f"#{kw.strip()}" for kw in keywords])
-    
-    full_text = f"{combined_body}\n\n{hashtags}"
-    return full_text
+    """Collapse the generated sections into a single LinkedIn-ready body."""
+    paragraphs = [
+        re.sub(r"\n+", "\n", str(post_data.get(key, "")))
+        for key in ("p1", "p2", "p3", "conclusion")
+    ]
+    combined_body = "\n\n".join(paragraphs)
+    combined_body = re.sub(r"\n{3,}", "\n\n", combined_body)
 
-def upload_to_onlyfiles(screenshot_path):
-    url = "https://api.onlyfiles.com/v1/upload"
+    keywords = post_data.get("keywords", []) or []
+    hashtags = " ".join(f"#{str(keyword).strip()}" for keyword in keywords)
 
-    with open(screenshot_path, "rb") as file:
-        response = requests.post(url, files={"file": file}, data={"expire": 172800})
+    return f"{combined_body}\n\n{hashtags}"
 
-    res_data = response.json() if response.content else {}
-    if response.status_code == 200 and res_data.get("status"):
-        # OnlyFiles response se direct file URL nikalte hain
-        direct_url = res_data["data"]["file"]["url"]["full"]
-        print(f"👉 DIRECT LINK (Expires in 48 Hours): {direct_url}")
-        return direct_url
-    else:
-        print(f"[WARNING] Upload Failed: {response.status_code}")
-        return None
-    
-# =========================
-# MAIN RUNNER
-# =========================
-def run():
+
+def run() -> None:
     print("[START] Script started", flush=True)
 
-    p_file = Path(POST_FILE)
-    t_file = Path(TOPICS_FILE)
+    post_file = Path(config.POST_FILE)
+    topics_file = Path(config.TOPICS_FILE)
 
-    if not p_file.exists() or not t_file.exists():
-        print(f"[ERROR] Required files missing ({POST_FILE} or {TOPICS_FILE})", flush=True)
+    if not post_file.exists() or not topics_file.exists():
+        print(f"[ERROR] Required files missing ({post_file.name} or {topics_file.name})", flush=True)
         return
 
-    with p_file.open("r", encoding="utf-8") as f:
-        post_data = json.load(f)
+    post_data = read_json(post_file, default={}) or {}
+    topics_list = read_json(topics_file, default=[]) or []
     current_title = post_data.get("title")
-
-    with t_file.open("r", encoding="utf-8") as f:
-        topics_list = json.load(f)
 
     target_topic = None
     target_index = -1
-    for idx, item in enumerate(topics_list):
+    for index, item in enumerate(topics_list):
         if item.get("topic") == current_title:
             target_topic = item
-            target_index = idx
+            target_index = index
             break
 
-    if not target_topic:
+    if target_topic is None:
         print(f"[SKIP] Topic '{current_title}' not found.", flush=True)
         return
 
-    if not (target_topic.get("content_generated") is True and 
-            target_topic.get("image_generated") is True and 
-            target_topic.get("posted") is False):
-        print(f"[SKIP] Conditions not met.", flush=True)
+    if not (
+        target_topic.get("content_generated") is True
+        and target_topic.get("image_generated") is True
+        and target_topic.get("posted") is False
+    ):
+        print("[SKIP] Pre-conditions not met.", flush=True)
         return
 
-    # SESSION INITIALIZATION
     print("[STEP] Initializing session via login.py...", flush=True)
     try:
-        pw, browser, context, page = login_and_get_context(is_headless=HEADLESS)
-    except Exception as e:
-        print(f"[ERROR] Login session failed: {e}", flush=True)
+        _playwright, browser, _context, page = login_and_get_context(is_headless=config.HEADLESS)
+    except Exception as exc:
+        print(f"[ERROR] Login session failed: {exc}", flush=True)
         sys.exit(1)
 
     try:
-        linkedin_url = "https://www.linkedin.com/feed/"
-        page.goto(linkedin_url, wait_until="load")
-        
+        page.goto(config.LINKEDIN_HOME_URL, wait_until="load")
+
         print("[STEP] Verifying login status...", flush=True)
-        me_button = page.get_by_role('button', name='Me', exact=True)
-        me_button.wait_for(state="visible", timeout=120000)
+        LINKEDIN_UI.wait_visible(
+            page,
+            "me_account_button",
+            timeout_ms=config.LOGIN_DOM_TIMEOUT_MS,
+            required=True,
+        )
         step_wait()
 
         print("[STEP] Clicking 'Start a post'...", flush=True)
-        page.get_by_role('button', name='Start a post').click()
+        LINKEDIN_UI.click(page, "start_a_post_button")
         step_wait()
 
         full_post_text = clean_and_format_post(post_data)
-        
-        # Locators setup
-        editor = (
-            page.get_by_role('textbox', name='Text editor for creating')
-            .or_(page.get_by_test_id('ui-core-tiptap-text-editor-wrapper').get_by_role('paragraph'))
-            .or_(page.locator('p[data-placeholder="Share your thoughts ..."]'))
-        )
-        
-        # ========================================================
-        # EDITOR FOCUS & TYPING FIX FOR TIPTAP/PROSEMIRROR
-        # ========================================================
-        print("[STEP] Focusing editor and clearing cursor state...", flush=True)
-        editor.first.click()
+
+        # Focus the editor and reset any stale caret position
+        print("[STEP] Focusing the editor and clearing the caret state...", flush=True)
+        LINKEDIN_UI.click(page, "post_editor_input")
         time.sleep(1)
 
-        # Clear existing hidden nodes or broken caret positions
         page.keyboard.press("Control+A")
         page.keyboard.press("Backspace")
         time.sleep(1)
 
-        print("[STEP] Typing post content from start...", flush=True)
-        # Global active window par type karne se caret hamesha 1st character se hi likhega
+        print("[STEP] Typing the post content from the start...", flush=True)
         page.keyboard.type(full_post_text, delay=25)
         step_wait()
-        # ========================================================
 
         print("[STEP] Uploading media...", flush=True)
-        img_file = Path(IMAGE_PATH)
-        with page.expect_file_chooser() as fc_info:
-            page.get_by_role('button', name='Media').click()
-        fc_info.value.set_files(str(img_file))
+        image_path = Path(config.IMAGE_FILE)
+        with page.expect_file_chooser() as chooser_info:
+            LINKEDIN_UI.click(page, "post_media_button")
+        chooser_info.value.set_files(str(image_path))
         step_wait()
 
-        next_button = (
-            page.get_by_test_id('interop-shadowdom').get_by_role('button', name='Next')
-            .or_(page.get_by_role('button', name='Next'))
-            .or_(page.get_by_role('button', name='Next', exact=True))
-        )
-        next_button.first.click()
+        LINKEDIN_UI.click(page, "post_next_button")
         step_wait()
 
-        print("[STEP] Posting...", flush=True)
-        page.get_by_role('button', name='Post', exact=True).click()
+        print("[STEP] Publishing...", flush=True)
+        LINKEDIN_UI.click(page, "post_submit_button")
         step_wait()
 
         topics_list[target_index]["posted"] = True
-        with t_file.open("w", encoding="utf-8") as f:
-            json.dump(topics_list, f, indent=4, ensure_ascii=False)
+        write_json(topics_file, topics_list)
 
         custom_random_wait(30, 60)
 
-    except Exception as e:
-        print("[ERROR] Script crashed:", e, flush=True)
-        if 'page' in locals() and page:
-            try:
-                screenshot_path = "error_screenshot.png"
-                page.screenshot(path=screenshot_path, full_page=True)
-                print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                
-                upload_to_onlyfiles(screenshot_path)
-            except Exception as screenshot_err:
-                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
+    except LocatorResolutionError as exc:
+        print(f"[ERROR] {exc}", flush=True)
+        capture_and_upload_error(page)
+        sys.exit(1)
+    except Exception as exc:
+        print(f"[ERROR] Script crashed: {exc}", flush=True)
+        capture_and_upload_error(page)
         sys.exit(1)
     finally:
-        if browser: browser.close()
-        if pw: pw.stop()
+        if browser:
+            browser.close()
+        try:
+            _playwright.stop()
+        except Exception:
+            pass
+
 
 if __name__ == "__main__":
     run()

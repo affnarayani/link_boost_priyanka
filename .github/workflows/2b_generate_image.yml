@@ -1,9 +1,9 @@
 name: 2B. Generate Image
 
 on:
-  workflow_dispatch: # GitHub UI se manual run karne ke liye button active rahega
+  workflow_dispatch: # Keeps a manual-run button available in the GitHub UI
   workflow_run:
-    workflows: ["2A. Generate Content"] # Jab pehla workflow khatam hoga, yeh automatically trigger ho jayega
+    workflows: ["2A. Generate Content"] # Triggers automatically once the first workflow finishes
     types:
       - completed
 
@@ -13,14 +13,14 @@ env:
 jobs:
   run-image-automation:
     runs-on: ubuntu-latest
-    # Yeh job tabhi chalega jab ya to manually trigger kiya ho, ya pehla workflow SAFAL (success) raha ho
+    # Runs only when manually triggered, or when the first workflow succeeded
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
       with:
-        fetch-depth: 0 # Full git history fetch karega taaki dynamic tracking commits safe rahein
+        fetch-depth: 0 # Fetches full git history so dynamic tracking commits stay safe
 
     - name: Set up Python
       uses: actions/setup-python@v6
@@ -38,7 +38,7 @@ jobs:
 
     - name: Install and Start Cloudflare WARP (TUN Global Mode)
       run: |
-        # 1. Repository aur GPG Key set karein
+        # 1. Add the repository and GPG key
         curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
         echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
         
@@ -52,45 +52,54 @@ jobs:
         # 4. Register (New CLI Syntax compatible)
         warp-cli --accept-tos registration new || warp-cli registration new
         
-        # 5. STRICT FIX: Mode ko PROXY se badal kar TUN (Standard VPN) karein
-        # Yeh pure GitHub runner ka internet traffic WARP se routing kar dega
+        # 5. Switch the mode from PROXY to TUN (standard VPN)
+        # This routes all GitHub runner internet traffic through WARP
         warp-cli --accept-tos mode warp || warp-cli mode warp
         
         # 6. Connect
         warp-cli --accept-tos connect || warp-cli connect
         sleep 5
         
-        # 7. Verify ki pure system ka IP change hua ya nahi
+        # 7. Verify that the whole system IP changed
         curl https://cloudflare.com/cdn-cgi/trace
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install playwright playwright-stealth cryptography python-dotenv requests
+        pip install -r requirements.txt
         playwright install chromium --with-deps
 
     - name: Run Image Script
       env:
         DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
-        IMGBBB_API_KEY: ${{ secrets.IMGBBB_API_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         python generate_image.py
 
     - name: Upload Error Screenshot
-      if: failure() # Agar image script fail hota hai to debugging ke liye screenshot extract karega
+      if: failure() # Extracts a screenshot for debugging when the image script fails
       uses: actions/upload-artifact@v4
       with:
         name: error-screenshot
-        path: error_screenshot.png
+        path: error/error_screenshot.png
         if-no-files-found: ignore
 
     - name: Commit and Push Generated Image & Updated JSON
       run: |
-        git add image/image.png priyanka_linkedin_topics.json
-        if ! git diff --staged --quiet; then
-          git checkout -- .
-          git clean -fd
-          git commit -m "chore: update state [skip ci]"
-          git pull origin main --rebase
-          git push origin main
+        # Stage the actual targets produced by the script:
+        # 1. image/image.png (default output asset directory of the script)
+        # 2. json/priyanka_linkedin_topics.json (holds the image_generated=True update)
+        git add image/image.png json/priyanka_linkedin_topics.json
+        # Self-healing locators: persist recorded fixes and auto-corrected .txt fallbacks
+        [ -f locators/changed_locators.json ] && git add locators/changed_locators.json
+        [ -f locators/linkedin_locators.txt ] && git add locators/linkedin_locators.txt
+        [ -f locators/chatgpt_locators.txt ] && git add locators/chatgpt_locators.txt
+        
+        if git diff --staged --quiet; then
+          echo "[INFO] No image changes or state mutations detected. Skipping push."
+        else
+          echo "[OK] New asset or JSON update detected. Committing and pushing updates..."
+          git commit -m "Automated: Update generated feed asset and tracking state [skip ci]"
+          git pull origin ${GITHUB_REF_NAME} --rebase
+          git push origin ${GITHUB_REF_NAME}
         fi

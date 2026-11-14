@@ -1,0 +1,50 @@
+# ==========================================================================
+# ChatGPT locators
+# --------------------------------------------------------------------------
+# Each line is a real Playwright locator expression, identical to what the
+# Python scripts used before this file existed:
+#
+#     key = <playwright expression> :: <vision description>
+#
+# - The expression is evaluated with `page` (the current Playwright Page) and
+#   `re` in scope. Edit it exactly as you would edit the Python call.
+# - Everything after ` ::` is optional. It is the natural-language description
+#   handed to Gemini Vision when the expression matches nothing, so keep it
+#   specific about position, label, and icon.
+# - `{placeholder}` values are filled by the calling script.
+# - Use `||`-free syntax: a key holds exactly ONE expression. For alternative
+#   selectors, chain them with Playwright's own `.or_(...)`.
+#
+# Self-healing fallbacks: a key may also declare EXTRA lines directly beneath its
+# primary line. The first line for a key is the primary; each following line with
+# the same key is an ordered fallback tried only when the primary (and earlier
+# fallbacks) fail. Fallback lines do not need a `::` description. When a locator
+# breaks and Gemini suggests a fix, `locators/changed_locators.json` records it and
+# (when `locator_healing.auto_correct_locator` is true) the suggestion is appended
+# here as a new fallback line under the same key.
+#
+# Keep this file free of Python-side locators: scripts must only reference keys.
+# ==========================================================================
+
+# --- Account and workspace -------------------------------------------------
+chatgpt_profile_menu_button = page.get_by_role("button", name=re.compile(r".*Free, open.*", re.IGNORECASE)).or_(page.get_by_role("button", name="Open profile menu")) :: profile / account menu button in the bottom-left corner of the ChatGPT sidebar
+chatgpt_existing_workspace_open_button = page.get_by_test_id("existing-workspace-row").get_by_role("button", name="Open") :: "Open" button on the existing-workspace row of the ChatGPT workspace switcher
+
+# --- Chat composer ---------------------------------------------------------
+chatgpt_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT").or_(page.get_by_role("textbox", name="Ask ChatGPT")).or_(page.locator('div[contenteditable="true"]').filter(has_text="Ask anything")).or_(page.locator("#prompt-textarea")) :: large message input box at the bottom-centre of the ChatGPT interface, placeholder starts with "Ask anything"
+chatgpt_image_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT").or_(page.get_by_role("textbox", name="Ask ChatGPT")).or_(page.locator('div[contenteditable="true"]').filter(has_text="Describe or edit an image")).or_(page.locator("#prompt-textarea")) :: large message input box at the bottom-centre of the ChatGPT image workspace, placeholder starts with "Describe or edit an image"
+chatgpt_send_button = page.get_by_test_id("send-button").or_(page.get_by_role("button", name="Send", exact=True)) :: send / submit button to the right of the ChatGPT message input box, upward arrow icon
+
+# --- Model output ----------------------------------------------------------
+chatgpt_response_code_block = page.locator("#code-block-viewer pre").or_(page.get_by_role("textbox", name="Edit code")).or_(page.get_by_role("code")) :: dark syntax-highlighted code block inside a ChatGPT response that contains a JSON object
+
+# --- Image generation ------------------------------------------------------
+chatgpt_create_image_button = page.get_by_role("button", name="Create an image", exact=True) :: "Create an image" suggestion chip shown below the ChatGPT composer on an empty chat
+chatgpt_image_preference_one_button = page.get_by_role("button", name="Image 1 is better", exact=True) :: "Image 1 is better" feedback button shown under the first generated ChatGPT image
+chatgpt_image_preference_two_button = page.get_by_role("button", name="Image 2 is better", exact=True) :: "Image 2 is better" feedback button shown under the second generated ChatGPT image
+chatgpt_image_preference_skip_button = page.get_by_role("button", name="Skip", exact=True) :: "Skip" feedback button shown alongside the generated ChatGPT image preference buttons
+chatgpt_generated_image_button = page.get_by_role("button", name=re.compile(r"Generated image:", re.IGNORECASE)) :: clickable generated-image container rendered in the ChatGPT conversation, opens the image lightbox
+chatgpt_share_image_button = page.get_by_role("button", name="Share this image", exact=True) :: "Share this image" button in the toolbar under a generated ChatGPT image
+chatgpt_download_button = page.get_by_role("button", name="Download", exact=True) :: "Download" button in the ChatGPT image toolbar or share dialog
+chatgpt_copy_link_button = page.get_by_role("button", name="Copy link", exact=True) :: "Copy link" button inside the ChatGPT share-image popup
+chatgpt_shared_page_save_button = page.get_by_role("button", name="Save", exact=True) :: "Save" button in the top-right corner of a public chatgpt.com/shared page

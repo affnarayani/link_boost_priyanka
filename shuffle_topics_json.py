@@ -1,26 +1,44 @@
+"""Shuffle the LinkedIn topic list in place, writing a new shuffled file."""
+
+from __future__ import annotations
+
 import json
 import random
+import sys
+from pathlib import Path
 
-def randomize_linkedin_topics(input_file, output_file):
+from common import config
+
+
+def randomize_topics(input_file: str, output_file: str) -> int:
+    """Shuffle ``input_file`` and write the result to ``output_file``."""
+    source = Path(input_file)
+    if not source.is_absolute():
+        source = config.JSON_DIR / source
+    target = Path(output_file)
+    if not target.is_absolute():
+        target = config.JSON_DIR / target
+
     try:
-        # 1. JSON file ko read karna
-        with open(input_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        # 2. Elements ko shuffle/randomize karna
-        # random.shuffle() list ko original jagah par hi shuffle kar deta hai
-        random.shuffle(data)
-        
-        # 3. Output ko naye JSON file me save karna
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-            
-        print(f"Success: Saare elements randomize ho gaye hain aur '{output_file}' me save ho chuke hain.")
-        
+        data = json.loads(source.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        print(f"Error: '{input_file}' file nahi mili. Kripya check karein ki file sahi folder me hai.")
-    except json.JSONDecodeError:
-        print("Error: JSON file ka format sahi nahi hai.")
+        print(f"Error: '{source}' not found. Please check the file is in the right folder.")
+        return 1
+    except ValueError:
+        print("Error: the JSON file is malformed.")
+        return 1
 
-# Program ko chalane ke liye function call
-randomize_linkedin_topics('linkedin_topics.json', 'priyanka_linkedin_topics.json')
+    if not isinstance(data, list):
+        print("Error: the JSON file does not contain an array.")
+        return 1
+
+    random.shuffle(data)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
+
+    print(f"Success: all elements shuffled and saved to '{target}'.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(randomize_topics("priyanka_linkedin_topics.json", "shuffled_linkedin_topics.json"))

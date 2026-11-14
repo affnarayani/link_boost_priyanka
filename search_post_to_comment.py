@@ -1,183 +1,129 @@
-import os
+"""Find a LinkedIn post to comment on and publish it to the pipeline state.
+
+Copies the permalink of the first suitable feed post, reads its body text, and
+records it in ``post_to_comment.json`` for the comment-generation stage.
+"""
+
+from __future__ import annotations
+
 import sys
-import json
-import time
-import random
-import re
 from pathlib import Path
-from typing import List, Dict, Any
 
-from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright
-import requests
-# login.py se function import karna hoga
-from login import login_and_get_context 
+from login import login_and_get_context
 
-# ========================
-# CONFIG
-# ========================
-HEADLESS = True
-JSON_OUTPUT_FILE = "post_to_comment.json"
-STATUS_FILE = "comment_status.json"
+from common import config
+from common.browser import (
+    capture_and_upload_error,
+    custom_random_wait,
+    read_json,
+    step_wait,
+    write_json,
+)
+from common.interact import LINKEDIN_UI, LocatorResolutionError
 
-# ========================
-# DYNAMIC WAITS
-# ========================
-def custom_random_wait(min_sec=15, max_sec=30):
-    seconds = random.uniform(min_sec, max_sec)
-    print(f"[WAIT] Sleeping for {seconds:.2f} seconds...", flush=True)
-    time.sleep(seconds)
 
-def upload_to_onlyfiles(screenshot_path):
-    url = "https://api.onlyfiles.com/v1/upload"
+MIN_POST_LENGTH = 150
 
-    with open(screenshot_path, "rb") as file:
-        response = requests.post(url, files={"file": file}, data={"expire": 172800})
 
-    res_data = response.json() if response.content else {}
-    if response.status_code == 200 and res_data.get("status"):
-        # OnlyFiles response se direct file URL nikalte hain
-        direct_url = res_data["data"]["file"]["url"]["full"]
-        print(f"👉 DIRECT LINK (Expires in 48 Hours): {direct_url}")
-        return direct_url
-    else:
-        print(f"[WARNING] Upload Failed: {response.status_code}")
-        return None
-    
-# ========================
-# MAIN
-# ========================
-def run():
+def run() -> None:
     print("[START] Script started", flush=True)
 
-    # 1. Status Check
-    status_path = Path(STATUS_FILE)
+    # 1. Pipeline gate
+    status_path = Path(config.STATUS_FILE)
     if not status_path.exists():
-        print(f"[ERROR] {STATUS_FILE} nahi mili!", flush=True)
+        print(f"[ERROR] {status_path.name} not found.", flush=True)
         sys.exit(1)
 
-    with open(status_path, "r", encoding="utf-8") as f:
-        status_data = json.load(f)
-
-    if (status_data.get("post_to_comment_found") is not False or 
-        status_data.get("comment_generated") is not False or 
-        status_data.get("comment_posted") is not False):
-        print("[INFO] Status check failed: Flags are not all 'false'.", flush=True)
+    status_data = read_json(status_path, default={}) or {}
+    if (
+        status_data.get("post_to_comment_found") is not False
+        or status_data.get("comment_generated") is not False
+        or status_data.get("comment_posted") is not False
+    ):
+        print("[INFO] Status check failed: flags are not all 'false'.", flush=True)
         sys.exit(0)
 
-    # 2. Use login.py for session
+    # 2. Session
     print("[STEP] Initializing session via login.py...", flush=True)
     try:
-        pw, browser, context, page = login_and_get_context(is_headless=HEADLESS)
+        _playwright, browser, context, page = login_and_get_context(is_headless=config.HEADLESS)
         context.grant_permissions(["clipboard-read", "clipboard-write"])
-    except Exception as e:
-        print(f"[ERROR] Login failed: {e}", flush=True)
+    except Exception as exc:
+        print(f"[ERROR] Login failed: {exc}", flush=True)
         sys.exit(1)
 
     try:
-        linkedin_url = "https://www.linkedin.com/feed/"
-        page.goto(linkedin_url, wait_until="load")
-        
+        page.goto(config.LINKEDIN_HOME_URL, wait_until="load")
         custom_random_wait(6, 12)
-        
-        print("[STEP] Changing feed sort to Recent...", flush=True)
+
+        # 3. Prefer the "Recent" feed sort so the newest posts surface first
+        print("[STEP] Switching the feed sort to Recent...", flush=True)
         try:
-            # 'Sort by: Top' button par click karein
-            page.get_by_role("button", name=re.compile(r"Sort by: Top", re.IGNORECASE)).click()
-            custom_random_wait(6, 12)
-            
-            # Dropdown se 'Recent' option select karein
-            page.get_by_text("Recent", exact=True).click()
-            custom_random_wait(6, 12)
-        except Exception as sort_e:
-            # Agar button nahi milta ya already Recent par hai, toh error print karke aage badhein
-            print(f"[INFO] Sort option change nahi ho paya (ya already Recent hai): {sort_e}", flush=True)
-            
-        # 3. Locate and click control menu
-        print("[STEP] Locating control menu for the first post...", flush=True)
-        control_menu_btn = page.get_by_role("button", name=re.compile(r"Open control menu for post by.*", re.IGNORECASE)).first
-        control_menu_btn.click()
-        custom_random_wait(6, 12)
+            LINKEDIN_UI.click(page, "feed_sort_by_top_button", required=False)
+            step_wait()
+            LINKEDIN_UI.click(page, "feed_sort_recent_option", required=False)
+            print("[INFO] Feed sorted to Recent...", flush=True)
+            step_wait()
+        except LocatorResolutionError as exc:
+            print(f"[INFO] Could not change the sort option (or it is already Recent): {exc}", flush=True)
 
-        # 4. Click 'Copy link to post'
+        # 4. Open the control menu of the first post
+        print("[STEP] Locating the control menu for the first post...", flush=True)
+        LINKEDIN_UI.click(page, "post_control_menu_button")
+        step_wait()
+
+        # 5. Copy the post link
         print("[STEP] Clicking 'Copy link to post'...", flush=True)
-        page.get_by_text("Copy link to post").click()
-        custom_random_wait(6, 12)
+        LINKEDIN_UI.click(page, "post_copy_link_menu_item")
+        step_wait()
 
-        # 5. Read clipboard
         raw_url = page.evaluate("navigator.clipboard.readText()")
         trimmed_url = raw_url.split("?")[0]
         print(f"[INFO] Trimmed URL: {trimmed_url}", flush=True)
 
-        # 6. Check commented.json
-        commented_file = Path("commented.json")
-        if commented_file.exists():
-            with open(commented_file, "r", encoding="utf-8") as f:
-                commented_data = json.load(f)
-                if trimmed_url in commented_data:
-                    print(f"[INFO] URL already commented. Exiting.", flush=True)
-                    if 'page' in locals() and page:
-                        try:
-                            screenshot_path = "error_screenshot.png"
-                            page.screenshot(path=screenshot_path, full_page=True)
-                            print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                            
-                            upload_to_onlyfiles(screenshot_path)
-                        except Exception as screenshot_err:
-                            print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
-                    sys.exit(1)
-
-        # 7. Extract content
-        page.goto(trimmed_url, wait_until="load")
-        custom_random_wait(6, 12)
-        post_locator = (
-            page.locator('div[class*="update-components-update-v2__commentary"]')
-            .or_(page.get_by_test_id("expandable-text-box"))
-            .first
-        )
-        post_locator.wait_for(state="visible", timeout=15000)
-        post_content = post_locator.inner_text().strip()
-        
-        if len(post_content) < 150:
-            print("[FAIL] Content too short.", flush=True)
-            if 'page' in locals() and page:
-                try:
-                    screenshot_path = "error_screenshot.png"
-                    page.screenshot(path=screenshot_path, full_page=True)
-                    print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                    
-                    upload_to_onlyfiles(screenshot_path)
-                except Exception as screenshot_err:
-                    print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
+        # 6. Skip posts that were already commented on
+        commented = read_json(config.COMMENTED_FILE, default=[]) or []
+        if trimmed_url in commented:
+            print("[INFO] URL already commented. Exiting.", flush=True)
+            capture_and_upload_error(page)
             sys.exit(1)
 
-        # 8. Save Data
-        with open(JSON_OUTPUT_FILE, "w", encoding="utf-8") as f:
-            json.dump({"url": trimmed_url, "content": post_content}, f, indent=4, ensure_ascii=False)
-        
-        # 9. Update Status
+        # 7. Read the post body
+        page.goto(trimmed_url, wait_until="load")
+        step_wait()
+        post_content = LINKEDIN_UI.read_text(page, "post_content_text")
+
+        if not post_content or len(post_content) < MIN_POST_LENGTH:
+            print("[FAIL] Post content too short.", flush=True)
+            capture_and_upload_error(page)
+            sys.exit(1)
+
+        # 8. Persist for the next stage
+        write_json(config.POST_DATA_FILE, {"url": trimmed_url, "content": post_content})
+
+        # 9. Advance the pipeline
         status_data["post_to_comment_found"] = True
-        with open(status_path, "w", encoding="utf-8") as f:
-            json.dump(status_data, f, indent=4, ensure_ascii=False)
+        write_json(status_path, status_data)
 
         print("[SUCCESS] Process completed.", flush=True)
         custom_random_wait(15, 30)
 
-    except Exception as e:
-        print(f"[ERROR] {e}", flush=True)
-        if 'page' in locals() and page:
-            try:
-                screenshot_path = "error_screenshot.png"
-                page.screenshot(path=screenshot_path, full_page=True)
-                print(f"[OK] Error screenshot captured: {screenshot_path}", flush=True)
-                
-                upload_to_onlyfiles(screenshot_path)
-            except Exception as screenshot_err:
-                print(f"[WARNING] Could not capture or upload screenshot: {screenshot_err}", flush=True)
+    except LocatorResolutionError as exc:
+        print(f"[ERROR] {exc}", flush=True)
+        capture_and_upload_error(page)
+        sys.exit(1)
+    except Exception as exc:
+        print(f"[ERROR] {exc}", flush=True)
+        capture_and_upload_error(page)
         sys.exit(1)
     finally:
-        if browser: browser.close()
-        if pw: pw.stop()
+        if browser:
+            browser.close()
+        try:
+            _playwright.stop()
+        except Exception:
+            pass
+
 
 if __name__ == "__main__":
     run()

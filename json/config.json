@@ -1,0 +1,99 @@
+{
+    "browser": {
+        "headless": true,
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "launch_args": [
+            "--start-maximized",
+            "--disable-blink-features=AutomationControlled"
+        ],
+        "no_viewport": true
+    },
+    "wait": {
+        "step_min_seconds": 6.0,
+        "step_max_seconds": 12.0,
+        "custom_min_seconds": 15.0,
+        "custom_max_seconds": 30.0
+    },
+    "timeout_ms": {
+        "default_dom": 15000,
+        "login_dom": 120000,
+        "action": 10000,
+        "download": 60000,
+        "chatgpt_response": 30000,
+        "chatgpt_text_keyboard": 15000
+    },
+    "vision": {
+        "model": "gemini-3.5-flash-lite",
+        "enabled": true,
+        "max_calls": 150,
+        "request_timeout_seconds": 60,
+        "wait_max_polls": 5,
+        "wait_max_seconds": 15,
+        "click_scroll_attempts": 5,
+        "temperature": 0.0
+    },
+    "locator_healing": {
+        "auto_correct_locator": true
+    },
+    "onlyfiles": {
+        "upload_url": "https://api.onlyfiles.com/v1/upload",
+        "expiry_seconds": 172800,
+        "request_timeout_seconds": 120
+    },
+    "linkedin": {
+        "base_url": "https://www.linkedin.com/",
+        "login_url": "https://www.linkedin.com/login",
+        "home_url": "https://www.linkedin.com/feed/",
+        "profile_base_url": "https://www.linkedin.com",
+        "cookie_domain": ".linkedin.com",
+        "people_search_url": "https://www.linkedin.com/search/results/people/?keywords=advocate&origin=FACETED_SEARCH&geoUrn=%5B%22113536609%22%5D",
+        "challenge_prefix": "https://www.linkedin.com/checkpoint/challenge",
+        "challenge_v2_prefix": "https://www.linkedin.com/checkpoint/challengesV2/",
+        "session_cookie_name": "li_at",
+        "withdraw_after_days": 7
+    },
+    "chatgpt": {
+        "url": "https://chatgpt.com/",
+        "max_retries": 10,
+        "shared_url_marker": "chatgpt.com/s/",
+        "copy_popup_settle_ms": 2000,
+        "continue_prompt_settle_ms": 3000
+    },
+    "paths": {
+        "locators_dir": "locators",
+        "linkedin_locators": "locators/linkedin_locators.txt",
+        "chatgpt_locators": "locators/chatgpt_locators.txt",
+        "changed_locators_file": "locators/changed_locators.json",
+        "json_dir": "json",
+        "config_file": "json/config.json",
+        "linkedin_cookies_dir": "linkedin_cookies",
+        "plaintext_cookie_file": "cookies.json",
+        "encrypted_cookie_file": "linkedin_cookies/linkedin_cookies.json.encrypted",
+        "chatgpt_cookies_dir": "chatgpt_cookies",
+        "image_dir": "image",
+        "image_file": "image/image.png",
+        "error_dir": "error",
+        "error_screenshot_file": "error/error_screenshot.png",
+        "status_file": "json/comment_status.json",
+        "post_data_file": "json/post_to_comment.json",
+        "commented_file": "json/commented.json",
+        "topics_file": "json/priyanka_linkedin_topics.json",
+        "post_file": "json/post.json",
+        "connections_file": "json/scraped_connections.json"
+    },
+    "crypto": {
+        "pbkdf2_iterations": 200000
+    },
+    "pipeline": {
+        "empty_page_limit": 3,
+        "max_name_length": 80,
+        "search_page_settle_ms": 5000,
+        "post_navigate_settle_ms": 2000,
+        "search_page_pause_ms": 2000
+    },
+    "timing_cron": {
+        "min_hour": 2,
+        "max_hour": 22,
+        "min_gap_minutes": 15
+    }
+}

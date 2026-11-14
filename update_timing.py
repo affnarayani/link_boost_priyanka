@@ -1,9 +1,11 @@
 import random
-import re
+
+from common import config
+
 
 def generate_random_time():
     minute = random.randint(0, 59)
-    hour = random.randint(2, 22)
+    hour = random.randint(config.TIMING_MIN_HOUR, config.TIMING_MAX_HOUR)
     return minute, hour
 
 def generate_times(n):
@@ -12,9 +14,9 @@ def generate_times(n):
     max_attempts = 10000
     while len(times) < n and attempts < max_attempts:
         minute = random.randint(0, 59)
-        hour = random.randint(2, 22)
+        hour = random.randint(config.TIMING_MIN_HOUR, config.TIMING_MAX_HOUR)
         total_min = hour * 60 + minute
-        if all(abs(total_min - (h * 60 + m)) >= 15 for h, m in times):
+        if all(abs(total_min - (h * 60 + m)) >= config.TIMING_MIN_GAP_MINUTES for h, m in times):
             times.append((minute, hour))
         attempts += 1
     if len(times) < n:

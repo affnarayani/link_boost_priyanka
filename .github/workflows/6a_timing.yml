@@ -53,7 +53,7 @@ jobs:
 
           git commit -m "chore: update workflow cron times from timing.py [skip ci]"
 
-          # Authentication ke liye PAT ka use
+          # Use the PAT for authentication
           git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}.git
 
           # Force rebase and push
