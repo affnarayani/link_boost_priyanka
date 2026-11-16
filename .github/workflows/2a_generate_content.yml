@@ -3,7 +3,7 @@ name: 2A. Generate Content
 on:
   schedule:
     # Runs daily at 13:35 UTC (19:05 IST)
-    - cron: '13 11 * * *'
+    - cron: '10 9 * * *'
   workflow_dispatch: # Allows manual triggering from the GitHub UI
 
 env:

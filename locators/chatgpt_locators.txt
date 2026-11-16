@@ -12,8 +12,10 @@
 #   handed to Gemini Vision when the expression matches nothing, so keep it
 #   specific about position, label, and icon.
 # - `{placeholder}` values are filled by the calling script.
-# - Use `||`-free syntax: a key holds exactly ONE expression. For alternative
-#   selectors, chain them with Playwright's own `.or_(...)`.
+# - A key may declare MORE THAN ONE expression on consecutive lines. The first
+#   line is the *primary*; subsequent lines for the same key are ordered
+#   *fallbacks* tried only when the primary (and earlier fallbacks) fail.
+#   Do NOT chain with `.or_()` — use separate lines for each fallback.
 #
 # Self-healing fallbacks: a key may also declare EXTRA lines directly beneath its
 # primary line. The first line for a key is the primary; each following line with
@@ -27,24 +29,86 @@
 # ==========================================================================
 
 # --- Account and workspace -------------------------------------------------
-chatgpt_profile_menu_button = page.get_by_role("button", name=re.compile(r".*Free, open.*", re.IGNORECASE)).or_(page.get_by_role("button", name="Open profile menu")) :: profile / account menu button in the bottom-left corner of the ChatGPT sidebar
+chatgpt_profile_menu_button = page.get_by_role("button", name=re.compile(r".*Free, open.*", re.IGNORECASE)) :: profile / account menu button in the bottom-left corner of the ChatGPT sidebar
+chatgpt_profile_menu_button = page.get_by_role("button", name="Open profile menu")
+chatgpt_profile_menu_button = page.locator("button[aria-label*='profile']")
+chatgpt_profile_menu_button = page.locator("button[data-test-id='profile-menu-button']")
+
 chatgpt_existing_workspace_open_button = page.get_by_test_id("existing-workspace-row").get_by_role("button", name="Open") :: "Open" button on the existing-workspace row of the ChatGPT workspace switcher
+chatgpt_existing_workspace_open_button = page.get_by_role("button", name="Open")
+chatgpt_existing_workspace_open_button = page.locator("button:has-text('Open')")
+chatgpt_existing_workspace_open_button = page.locator("[data-test-id='existing-workspace-open']")
 
 # --- Chat composer ---------------------------------------------------------
-chatgpt_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT").or_(page.get_by_role("textbox", name="Ask ChatGPT")).or_(page.locator('div[contenteditable="true"]').filter(has_text="Ask anything")).or_(page.locator("#prompt-textarea")) :: large message input box at the bottom-centre of the ChatGPT interface, placeholder starts with "Ask anything"
-chatgpt_image_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT").or_(page.get_by_role("textbox", name="Ask ChatGPT")).or_(page.locator('div[contenteditable="true"]').filter(has_text="Describe or edit an image")).or_(page.locator("#prompt-textarea")) :: large message input box at the bottom-centre of the ChatGPT image workspace, placeholder starts with "Describe or edit an image"
-chatgpt_send_button = page.get_by_test_id("send-button").or_(page.get_by_role("button", name="Send", exact=True)) :: send / submit button to the right of the ChatGPT message input box, upward arrow icon
+chatgpt_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT") :: large message input box at the bottom-centre of the ChatGPT interface, placeholder starts with "Ask anything"
+chatgpt_chat_input = page.get_by_role("textbox", name="Ask ChatGPT")
+chatgpt_chat_input = page.locator('div[contenteditable="true"]').filter(has_text="Ask anything")
+chatgpt_chat_input = page.locator("#prompt-textarea")
+chatgpt_chat_input = page.locator("textarea[data-test-id='chat-input']")
+
+chatgpt_image_chat_input = page.get_by_role("textbox", name="Chat with ChatGPT") :: large message input box at the bottom-centre of the ChatGPT image workspace, placeholder starts with "Describe or edit an image"
+chatgpt_image_chat_input = page.get_by_role("textbox", name="Ask ChatGPT")
+chatgpt_image_chat_input = page.locator('div[contenteditable="true"]').filter(has_text="Describe or edit an image")
+chatgpt_image_chat_input = page.locator("#prompt-textarea")
+chatgpt_image_chat_input = page.locator("textarea[data-test-id='image-chat-input']")
+
+chatgpt_send_button = page.get_by_test_id("send-button") :: send / submit button to the right of the ChatGPT message input box, upward arrow icon
+chatgpt_send_button = page.get_by_role("button", name="Send", exact=True)
+chatgpt_send_button = page.locator("button[aria-label='Send message']")
+chatgpt_send_button = page.locator("button[data-test-id='send-button']")
+chatgpt_send_button = page.locator("button:has-text('Send')")
 
 # --- Model output ----------------------------------------------------------
-chatgpt_response_code_block = page.locator("#code-block-viewer pre").or_(page.get_by_role("textbox", name="Edit code")).or_(page.get_by_role("code")) :: dark syntax-highlighted code block inside a ChatGPT response that contains a JSON object
+chatgpt_response_code_block = page.locator("#code-block-viewer pre") :: dark syntax-highlighted code block inside a ChatGPT response that contains a JSON object
+chatgpt_response_code_block = page.get_by_role("textbox", name="Edit code")
+chatgpt_response_code_block = page.get_by_role("code")
+chatgpt_response_code_block = page.locator("pre.code-block")
+chatgpt_response_code_block = page.locator("[data-test-id='response-code-block']")
 
 # --- Image generation ------------------------------------------------------
 chatgpt_create_image_button = page.get_by_role("button", name="Create an image", exact=True) :: "Create an image" suggestion chip shown below the ChatGPT composer on an empty chat
+chatgpt_create_image_button = page.get_by_role("button", name=re.compile(r"Create an image", re.IGNORECASE))
+chatgpt_create_image_button = page.locator("button:has-text('Create an image')")
+chatgpt_create_image_button = page.locator("[data-test-id='create-image-button']")
+
 chatgpt_image_preference_one_button = page.get_by_role("button", name="Image 1 is better", exact=True) :: "Image 1 is better" feedback button shown under the first generated ChatGPT image
+chatgpt_image_preference_one_button = page.get_by_role("button", name=re.compile(r"Image 1", re.IGNORECASE))
+chatgpt_image_preference_one_button = page.locator("button:has-text('Image 1 is better')")
+chatgpt_image_preference_one_button = page.locator("[data-test-id='image-preference-1']")
+
 chatgpt_image_preference_two_button = page.get_by_role("button", name="Image 2 is better", exact=True) :: "Image 2 is better" feedback button shown under the second generated ChatGPT image
+chatgpt_image_preference_two_button = page.get_by_role("button", name=re.compile(r"Image 2", re.IGNORECASE))
+chatgpt_image_preference_two_button = page.locator("button:has-text('Image 2 is better')")
+chatgpt_image_preference_two_button = page.locator("[data-test-id='image-preference-2']")
+
 chatgpt_image_preference_skip_button = page.get_by_role("button", name="Skip", exact=True) :: "Skip" feedback button shown alongside the generated ChatGPT image preference buttons
+chatgpt_image_preference_skip_button = page.get_by_role("button", name=re.compile(r"Skip", re.IGNORECASE))
+chatgpt_image_preference_skip_button = page.locator("button:has-text('Skip')")
+chatgpt_image_preference_skip_button = page.locator("[data-test-id='image-preference-skip']")
+
 chatgpt_generated_image_button = page.get_by_role("button", name=re.compile(r"Generated image:", re.IGNORECASE)) :: clickable generated-image container rendered in the ChatGPT conversation, opens the image lightbox
+chatgpt_generated_image_button = page.locator("button[aria-label*='Generated image']")
+chatgpt_generated_image_button = page.locator("img[alt*='Generated image']")
+chatgpt_generated_image_button = page.locator("[data-test-id='generated-image-button']")
+
 chatgpt_share_image_button = page.get_by_role("button", name="Share this image", exact=True) :: "Share this image" button in the toolbar under a generated ChatGPT image
+chatgpt_share_image_button = page.get_by_role("button", name=re.compile(r"Share this image", re.IGNORECASE))
+chatgpt_share_image_button = page.locator("button:has-text('Share this image')")
+chatgpt_share_image_button = page.locator("[data-test-id='share-image-button']")
+chatgpt_share_image_button = page.get_by_role("button", name="Share generated image").first
+chatgpt_share_image_button = page.get_by_role("button", name="Share generated image").nth(1)
+
 chatgpt_download_button = page.get_by_role("button", name="Download", exact=True) :: "Download" button in the ChatGPT image toolbar or share dialog
+chatgpt_download_button = page.get_by_role("button", name=re.compile(r"Download", re.IGNORECASE))
+chatgpt_download_button = page.locator("button:has-text('Download')")
+chatgpt_download_button = page.locator("[data-test-id='download-button']")
+
 chatgpt_copy_link_button = page.get_by_role("button", name="Copy link", exact=True) :: "Copy link" button inside the ChatGPT share-image popup
+chatgpt_copy_link_button = page.get_by_role("button", name=re.compile(r"Copy link", re.IGNORECASE))
+chatgpt_copy_link_button = page.locator("button:has-text('Copy link')")
+chatgpt_copy_link_button = page.locator("[data-test-id='copy-link-button']")
+
 chatgpt_shared_page_save_button = page.get_by_role("button", name="Save", exact=True) :: "Save" button in the top-right corner of a public chatgpt.com/shared page
+chatgpt_shared_page_save_button = page.get_by_role("button", name=re.compile(r"Save", re.IGNORECASE))
+chatgpt_shared_page_save_button = page.locator("button:has-text('Save')")
+chatgpt_shared_page_save_button = page.locator("[data-test-id='shared-page-save']")

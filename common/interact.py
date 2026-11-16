@@ -170,18 +170,18 @@ class PageActions:
             return 0
 
     def is_visible(self, page: Page, key: str, **params: str) -> bool:
-        locator = self.locator(page, key, **params)
-        if locator is None:
+        locator = self.resolve(page, key, **params)
+        if locator is not None:
+            try:
+                if locator.first.is_visible():
+                    return True
+            except Exception:
+                pass
+        description = self.describe(key, **params)
+        if self._vision_unavailable_reason():
             return False
-        try:
-            if locator.first.is_visible():
-                return True
-        except Exception:
-            return False
-        try:
-            return locator.count() > 0
-        except Exception:
-            return False
+        _log(f"[FALLBACK] DOM visibility failed for {key!r}; trying Gemini Vision")
+        return self.vision.exists(page, description)
 
     # --------------------------------------------------------------- actions
     def wait_visible(

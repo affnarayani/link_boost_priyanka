@@ -125,6 +125,6 @@ jobs:
           else
             git commit -m "chore: update linkedin automation history state [skip ci]"
             
-            git pull origin "$BRANCH_NAME" --rebase
+            git pull origin "$BRANCH_NAME" --rebase --autostash
             git push origin "$BRANCH_NAME"
           fi

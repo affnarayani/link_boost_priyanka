@@ -263,16 +263,21 @@ def run() -> None:
 
         custom_random_wait(1, 2)
 
-        # 7. Submit via keyboard (three tabs then Enter)
-        print("[STEP] Submitting the comment using the keyboard sequence (3 TABs + ENTER)...", flush=True)
-        for index in range(1, 4):
-            page.keyboard.press("Tab")
-            print(f"[KEYBOARD] Pressed TAB ({index}/3)", flush=True)
-            custom_random_wait(1, 2)
+        # 7. Submit via DOM locator (primary → fallbacks → vision), then keyboard fallback
+        print("[STEP] Submitting the comment via DOM locator...", flush=True)
+        submitted = LINKEDIN_UI.click(page, "post_comment_button", required=False)
+        if submitted:
+            print("[OK] Comment submitted via DOM locator.", flush=True)
+        else:
+            print("[FALLBACK] DOM submission failed; using keyboard sequence (3 TABs + ENTER)", flush=True)
+            for index in range(1, 4):
+                page.keyboard.press("Tab")
+                print(f"[KEYBOARD] Pressed TAB ({index}/3)", flush=True)
+                custom_random_wait(1, 2)
 
-        page.keyboard.press("Enter")
-        print("[KEYBOARD] Pressed ENTER to post the comment.", flush=True)
-        custom_random_wait(6, 12)
+            page.keyboard.press("Enter")
+            print("[KEYBOARD] Pressed ENTER to post the comment.", flush=True)
+            custom_random_wait(6, 12)
 
         # 8. Like the post
         print("[STEP] Locating the Like button...", flush=True)
